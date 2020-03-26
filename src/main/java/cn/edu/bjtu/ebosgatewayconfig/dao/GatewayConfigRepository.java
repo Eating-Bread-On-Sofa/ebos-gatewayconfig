@@ -14,8 +14,8 @@ public interface GatewayConfigRepository extends MongoRepository<GatewayConfig,S
     @Override
     public Page<GatewayConfig> findAll(Pageable pageable);
     public GatewayConfig findGatewayConfigByIp(String ip);
-    void deleteByGatewayConfigIp(String ip);
-    void deleteByGatewayConfigName(String name);
+    void deleteGatewayConfigByIp(String ip);
+    void deleteGatewayConfigByName(String name);
     @Override
     List<GatewayConfig> findAll();
 }

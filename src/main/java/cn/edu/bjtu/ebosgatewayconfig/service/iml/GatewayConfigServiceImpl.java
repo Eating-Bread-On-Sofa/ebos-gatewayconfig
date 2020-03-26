@@ -51,7 +51,7 @@ public class GatewayConfigServiceImpl implements GatewayConfigService {
         if(gatewayConfig == null ){
             return false;
         }else{
-            gatewayConfigRepository.deleteByGatewayConfigIp(ip);
+            gatewayConfigRepository.deleteGatewayConfigByIp(ip);
             return true;
         }
     }
@@ -63,7 +63,7 @@ public class GatewayConfigServiceImpl implements GatewayConfigService {
         if(gatewayConfig == null ){
             return false;
         }else{
-            gatewayConfigRepository.deleteByGatewayConfigName(name);
+            gatewayConfigRepository.deleteGatewayConfigByName(name);
             return true;
         }
     }

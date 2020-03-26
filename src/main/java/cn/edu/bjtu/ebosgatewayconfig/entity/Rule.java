@@ -2,6 +2,7 @@ package cn.edu.bjtu.ebosgatewayconfig.entity;
 
 import com.alibaba.fastjson.JSONArray;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
 
 @Document
 public class Rule {

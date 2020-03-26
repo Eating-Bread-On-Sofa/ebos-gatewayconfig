@@ -17,7 +17,7 @@ public class DeviceServiceImpl implements DeviceService {
     DeviceRepository deviceRepository;
     @Override
     public boolean addDevice(Device device) {
-        Device device1 = deviceRepository.findDeviceByName(device.getGwname());
+        Device device1 = deviceRepository.findDeviceByGwname(device.getGwname());
         if (device1 == null) {
             deviceRepository.save(device);
             return true;
@@ -28,7 +28,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Device findDeviceByName(String name) {
-        return deviceRepository.findDeviceByName(name);
+        return deviceRepository.findDeviceByGwname(name);
     }
 
     @Override
@@ -38,11 +38,11 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public boolean deleteByDeviceName(String name) {
-        Device device = deviceRepository.findDeviceByName(name);
+        Device device = deviceRepository.findDeviceByGwname(name);
         if (device == null) {
             return false;
         } else {
-            deviceRepository.deleteByDeviceName(name);
+            deviceRepository.deleteDeviceByGwname(name);
             return true;
         }
     }

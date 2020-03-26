@@ -2,6 +2,7 @@ package cn.edu.bjtu.ebosgatewayconfig.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
 
 @Document
 public class GatewayConfig {

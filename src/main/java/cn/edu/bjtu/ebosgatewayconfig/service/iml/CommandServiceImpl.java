@@ -18,7 +18,7 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public boolean addCommand(Command command) {
-        Command command1 = commandRepository.findCommandByName(command.getGwname());
+        Command command1 = commandRepository.findCommandByGwname(command.getGwname());
         if (command1 == null) {
             commandRepository.save(command1);
             return true;
@@ -29,7 +29,7 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public Command findCommandByName(String name) {
-        return commandRepository.findCommandByName(name);
+        return commandRepository.findCommandByGwname(name);
     }
 
     @Override
@@ -39,11 +39,11 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public boolean deleteByCommandName(String name) {
-        Command command = commandRepository.findCommandByName(name);
+        Command command = commandRepository.findCommandByGwname(name);
         if (command == null) {
             return false;
         } else {
-            commandRepository.deleteByCommandName(name);
+            commandRepository.deleteCommandByGwname(name);
             return true;
         }
     }

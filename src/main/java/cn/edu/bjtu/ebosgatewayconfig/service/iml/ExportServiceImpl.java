@@ -18,7 +18,7 @@ public class ExportServiceImpl implements ExportService {
     ExportRepository exportRepository;
     @Override
     public boolean addExport(Export export) {
-        Export export1 = exportRepository.findExportByName(export.getGwname());
+        Export export1 = exportRepository.findExportByGwname(export.getGwname());
         if (export1 == null) {
             exportRepository.save(export);
             return true;
@@ -29,7 +29,7 @@ public class ExportServiceImpl implements ExportService {
 
     @Override
     public Export findExportByName(String name) {
-        return exportRepository.findExportByName(name);
+        return exportRepository.findExportByGwname(name);
     }
 
     @Override
@@ -39,11 +39,11 @@ public class ExportServiceImpl implements ExportService {
 
     @Override
     public boolean deleteByExportName(String name) {
-        Export export = exportRepository.findExportByName(name);
+        Export export = exportRepository.findExportByGwname(name);
         if (export == null) {
             return false;
         } else {
-            exportRepository.deleteByExportName(name);
+            exportRepository.deleteExportByGwname(name);
             return true;
         }
     }
