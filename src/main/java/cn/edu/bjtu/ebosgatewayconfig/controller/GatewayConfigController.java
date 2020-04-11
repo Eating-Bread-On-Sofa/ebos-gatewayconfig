@@ -35,90 +35,89 @@ public class GatewayConfigController {
     /**
      * {
      *     ip1 : {
-     *         command : 0 or 1; String
-     *         device : { deviceIp : 0 or 设备管理ip};
-     *         deviceprofile : 0 or 1;
-     *         deviceservice : 0 or 1;
-     *         export : 0 or 1;
-     *     },
+     *      *         command : 0 or 1; String
+     *      *         device : { deviceIp : 0 or 设备管理ip};
+     *      *         deviceprofile : 0 or 1;
+     *      *         deviceservice : 0 or 1;
+     *      *         export : 0 or 1;
+     *      *     },
      *     ip2 : {
      *
      *     }
      * }
      */
-    @PostMapping("/copy")
-    public String copyInfo(@RequestBody JSONObject jsonObject){
-        Set<String> strings = jsonObject.keySet();
-        for (String ip : strings) {
-            String url = "http://"+ ip +":8090/api/instance";
-            Gateway gateway = gatewayService.findGatewayByIp(ip);
-            if (gateway == null) {
-                return "此网关 ："+ ip + "未创建";
-            }
-            String gwname = gateway.getName();
-            JSONObject res = restTemplate.getForObject(url, JSONObject.class);
-            JSONArray commands = res.getJSONArray("command");
-            JSONArray devices =  res.getJSONArray("device");
-            JSONArray deviceprofiles = res.getJSONArray("deviceprofile");
-            JSONArray deviceservices = res.getJSONArray("deviceservice");
-            JSONArray exports = res.getJSONArray("export");
-            if (jsonObject.getJSONObject(ip).getString("command").equals("1")) {
-                commandService.addCommand(new Command(gwname , commands));
-            }
-            if (jsonObject.getJSONObject(ip).getString("device").equals("1")) {
-                deviceService.addDevice(new Device(gwname, devices));
-            }
-            if (jsonObject.getJSONObject(ip).getString("deviceprofile").equals("1")) {
-                deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles));
-            }
-            if (jsonObject.getJSONObject(ip).getString("deviceservice").equals("1")) {
-                deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices));
-            }
-            if (jsonObject.getJSONObject(ip).getString("device").equals("1")) {
-                exportService.addExport(new Export(gwname, exports));
-            }
+    @PostMapping("/copy/{ip}")
+    public String copyInfo(@PathVariable String ip,@RequestBody JSONObject jsonObject){
+//        Set<String> strings = jsonObject.keySet();
+//        for (String ip : strings) {
+        String url = "http://"+ ip +":8090/api/instance";
+        Gateway gateway = gatewayService.findGatewayByIp(ip);
+        if (gateway == null) {
+            return "此网关 ："+ ip + "未创建";
         }
+        String gwname = gateway.getName();
+        JSONObject res = restTemplate.getForObject(url, JSONObject.class);
+        JSONArray commands = res.getJSONArray("command");
+        JSONArray devices =  res.getJSONArray("device");
+        JSONArray deviceprofiles = res.getJSONArray("deviceprofile");
+        JSONArray deviceservices = res.getJSONArray("deviceservice");
+        JSONArray exports = res.getJSONArray("export");
+        if (jsonObject.getString("command").equals("1")) {
+            commandService.addCommand(new Command(gwname , commands));
+        }
+        if (jsonObject.getString("device").equals("1")) {
+            deviceService.addDevice(new Device(gwname, devices));
+        }
+        if (jsonObject.getString("deviceprofile").equals("1")) {
+            deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles));
+        }
+        if (jsonObject.getString("deviceservice").equals("1")) {
+            deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices));
+        }
+        if (jsonObject.getString("device").equals("1")) {
+            exportService.addExport(new Export(gwname, exports));
+        }
+//        }
         return "备份成功";
     }
 
-    @PostMapping("/recover")
-    public String recoverInfo(@RequestBody JSONObject jsonObject){
-        Set<String> strings = jsonObject.keySet();
+    @PostMapping("/recover/{ip}")
+    public String recoverInfo(@PathVariable String ip,@RequestBody JSONObject jsonObject){
+//        Set<String> strings = jsonObject.keySet();
         JSONArray deviceResult= new JSONArray();
-        for (String ip : strings) {
-            if (gatewayService.findGatewayByIp(ip) != null) {
-                JSONObject result = new JSONObject();
-                String gwname = gatewayService.findGatewayByIp(ip).getName();
-                if (jsonObject.getJSONObject(ip).getString("command").equals("1")) {
-                    JSONArray commandArray = commandService.findCommandByName(gwname).getInfo();
-                    result.put("command", commandArray);
-                }
-                if (!jsonObject.getJSONObject(ip).getJSONObject("device").getString("deviceIp").equals("0")) {
-                    JSONArray deviceArr = deviceService.findDeviceByName(gwname).getInfo();
-                    String deviceIp = jsonObject.getJSONObject(ip).getJSONObject("device").getString("deviceIp");
-                    String deviceUrl = "http://" + deviceIp + ":8081/api/device/recover/"+ ip;
-                    deviceResult.add(restTemplate.postForObject(deviceUrl, deviceArr, JSONArray.class));
-                }
-                if (jsonObject.getJSONObject(ip).getString("deviceprofile").equals("1")) {
-                    JSONArray deviceProfileArr = deviceprofileService.findDeviceprofileByName(gwname).getInfo();
-                    result.put("deviceprofile", deviceProfileArr);
-                }
-                if (jsonObject.getJSONObject(ip).getString("deviceservice").equals("1")) {
-                    JSONArray deviceserviceArr = deviceserviceService.findDeviceserviceByName(gwname).getInfo();
-                    result.put("deviceservice", deviceserviceArr);
-                }
-                if (jsonObject.getJSONObject(ip).getString("export").equals("1")) {
-                    JSONArray exportArr = exportService.findExportByName(gwname).getInfo();
-                    result.put("export", exportArr);
-                }
-                String url = "http://" + ip + ":8090/api/instance";
-                deviceResult.add(restTemplate.postForObject(url, result, JSONObject.class));
-                return deviceResult.toString();
-            } else {
-                return "此网关 ："+ ip + "未创建";
+//        for (String ip : strings) {
+        if (gatewayService.findGatewayByIp(ip) != null) {
+            JSONObject result = new JSONObject();
+            String gwname = gatewayService.findGatewayByIp(ip).getName();
+            if (jsonObject.getString("command").equals("1")) {
+                JSONArray commandArray = commandService.findCommandByName(gwname).getInfo();
+                result.put("command", commandArray);
             }
+            if (!jsonObject.getJSONObject("device").getString("deviceIp").equals("0")) {
+                JSONArray deviceArr = deviceService.findDeviceByName(gwname).getInfo();
+                String deviceIp = jsonObject.getJSONObject(ip).getJSONObject("device").getString("deviceIp");
+                String deviceUrl = "http://" + deviceIp + ":8081/api/device/recover/"+ ip;
+                deviceResult.add(restTemplate.postForObject(deviceUrl, deviceArr, JSONArray.class));
+            }
+            if (jsonObject.getString("deviceprofile").equals("1")) {
+                JSONArray deviceProfileArr = deviceprofileService.findDeviceprofileByName(gwname).getInfo();
+                result.put("deviceprofile", deviceProfileArr);
+            }
+            if (jsonObject.getString("deviceservice").equals("1")) {
+                JSONArray deviceserviceArr = deviceserviceService.findDeviceserviceByName(gwname).getInfo();
+                result.put("deviceservice", deviceserviceArr);
+            }
+            if (jsonObject.getString("export").equals("1")) {
+                JSONArray exportArr = exportService.findExportByName(gwname).getInfo();
+                result.put("export", exportArr);
+            }
+            String url = "http://" + ip + ":8090/api/instance";
+            deviceResult.add(restTemplate.postForObject(url, result, JSONObject.class));
+            return deviceResult.toString();
+        } else {
+            return "此网关 ："+ ip + "未创建";
         }
-        return "请按格式输入";
+//        }
     }
 
 
