@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @RequestMapping("/api/gateway")
 @RestController
@@ -74,7 +73,7 @@ public class GatewayConfigController {
         if (jsonObject.getString("deviceservice").equals("1")) {
             deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices));
         }
-        if (jsonObject.getString("device").equals("1")) {
+        if (jsonObject.getString("export").equals("1")) {
             exportService.addExport(new Export(gwname, exports));
         }
 //        }
@@ -95,9 +94,10 @@ public class GatewayConfigController {
             }
             if (!jsonObject.getJSONObject("device").getString("deviceIp").equals("0")) {
                 JSONArray deviceArr = deviceService.findDeviceByName(gwname).getInfo();
-                String deviceIp = jsonObject.getJSONObject(ip).getJSONObject("device").getString("deviceIp");
+                String deviceIp = jsonObject.getJSONObject("device").getString("deviceIp");
                 String deviceUrl = "http://" + deviceIp + ":8081/api/device/recover/"+ ip;
-                deviceResult.add(restTemplate.postForObject(deviceUrl, deviceArr, JSONArray.class));
+                JSONObject jsonObject1 = restTemplate.postForObject(deviceUrl, deviceArr, JSONObject.class);
+                deviceResult.add(jsonObject1);
             }
             if (jsonObject.getString("deviceprofile").equals("1")) {
                 JSONArray deviceProfileArr = deviceprofileService.findDeviceprofileByName(gwname).getInfo();

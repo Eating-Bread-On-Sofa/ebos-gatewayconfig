@@ -20,7 +20,7 @@ public class CommandServiceImpl implements CommandService {
     public boolean addCommand(Command command) {
         Command command1 = commandRepository.findCommandByGwname(command.getGwname());
         if (command1 == null) {
-            commandRepository.save(command1);
+            commandRepository.save(command);
             return true;
         } else {
             return false;
