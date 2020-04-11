@@ -143,7 +143,13 @@ public class GatewayConfigController {
             String ip = gateway.getIp();
             String url =  "http://"+ ip +":8090/api/instance/state";
             JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
-            jsonArray.add(jsonObject);
+            if (jsonObject == null) {
+                jsonObject = new JSONObject();
+                jsonObject.put("网关 ip:" + ip, "不存在,请确认");
+                jsonArray.add(jsonObject);
+            } else {
+                jsonArray.add(jsonObject);
+            }
         }
         return jsonArray;
     }
@@ -178,5 +184,4 @@ public class GatewayConfigController {
         boolean flag = gatewayService.deleteByGatewayName(name);
         return flag;
     }
-
 }
