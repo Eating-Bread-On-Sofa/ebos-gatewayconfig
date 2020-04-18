@@ -17,4 +17,5 @@ public interface ExportRepository extends MongoRepository<Export,String> {
     void deleteExportByGwname(String name);
     @Override
     List<Export> findAll();
+    Export findExportByGwnameAndVersuon(String name,String version);
 }

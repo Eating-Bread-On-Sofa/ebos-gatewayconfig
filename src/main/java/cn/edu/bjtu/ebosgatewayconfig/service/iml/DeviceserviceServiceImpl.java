@@ -57,4 +57,9 @@ public class DeviceserviceServiceImpl implements DeviceserviceService {
     public void changeDeviceserviceStatus(Deviceservice deviceservice) {
         deviceserviceRepository.save(deviceservice);
     }
+
+    @Override
+    public Deviceservice findByNameAndVersion(String name, String version) {
+        return deviceserviceRepository.findDeviceserviceByGwnameAndVersuon(name, version);
+    }
 }

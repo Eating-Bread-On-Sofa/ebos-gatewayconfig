@@ -4,14 +4,18 @@ import com.alibaba.fastjson.JSONArray;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Document
 public class Export {
     private String gwname;
     private JSONArray info;
+    private String versuon;
 
-    public Export(String gwname, JSONArray info) {
+    public Export(String gwname, JSONArray info, String versuon) {
         this.gwname = gwname;
         this.info = info;
+        this.versuon = versuon;
     }
 
     public String getGwname() {
@@ -28,6 +32,14 @@ public class Export {
 
     public void setInfo(JSONArray info) {
         this.info = info;
+    }
+
+    public String getVersuon() {
+        return versuon;
+    }
+
+    public void setVersuon(String versuon) {
+        this.versuon = versuon;
     }
 
     @Override

@@ -58,4 +58,9 @@ public class DeviceprofileServiceImpl implements DeviceprofileService {
     public void changeDeviceprofileStatus(Deviceprofile deviceprofile) {
         deviceprofileRepository.save(deviceprofile);
     }
+
+    @Override
+    public Deviceprofile findByNameAndVersion(String name, String version) {
+        return deviceprofileRepository.findDeviceprofileByGwnameAndVersuon(name,version);
+    }
 }

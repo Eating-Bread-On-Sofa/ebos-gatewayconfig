@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Document
 public class Rule {
     private String gwname;
@@ -29,6 +31,7 @@ public class Rule {
     public void setInfo(JSONArray info) {
         this.info = info;
     }
+
 
     @Override
     public String toString() {

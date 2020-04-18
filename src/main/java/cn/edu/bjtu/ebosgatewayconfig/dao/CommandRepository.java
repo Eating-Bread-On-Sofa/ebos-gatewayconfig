@@ -16,4 +16,7 @@ public interface CommandRepository extends MongoRepository<Command,String> {
     void deleteCommandByGwname(String name);
     @Override
     List<Command> findAll();
+    Command findCommandByGwnameAndVersuon(String name, String version);
+
+    List<Command> findCommandsByGwname(String name);
 }

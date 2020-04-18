@@ -14,4 +14,5 @@ public interface DeviceService {
     boolean deleteByDeviceName(String name);
     public List<Device> findAllDevice();
     public void changeDeviceStatus(Device device);
+    public Device findByNameAndVersion(String name, String version);
 }

@@ -17,4 +17,5 @@ public interface DeviceserviceRepository extends MongoRepository<Deviceservice,S
     void deleteDeviceserviceByGwname(String name);
     @Override
     List<Deviceservice> findAll();
+    Deviceservice findDeviceserviceByGwnameAndVersuon(String name,String version);
 }

@@ -57,4 +57,9 @@ public class ExportServiceImpl implements ExportService {
     public void changeExportStatus(Export export) {
         exportRepository.save(export);
     }
+
+    @Override
+    public Export findByNameAndVersion(String name, String version) {
+        return exportRepository.findExportByGwnameAndVersuon(name, version);
+    }
 }

@@ -57,4 +57,14 @@ public class CommandServiceImpl implements CommandService {
     public void changeCommandStatus(Command command) {
         commandRepository.save(command);
     }
+
+    @Override
+    public Command findByNameAndVersion(String name, String version) {
+        return commandRepository.findCommandByGwnameAndVersuon(name,version);
+    }
+
+    @Override
+    public List<Command> findCommandVersion(String name) {
+        return commandRepository.findCommandsByGwname(name);
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RequestMapping("/api/gateway")
@@ -49,6 +50,7 @@ public class GatewayConfigController {
     public String copyInfo(@PathVariable String ip,@RequestBody JSONObject jsonObject){
 //        Set<String> strings = jsonObject.keySet();
 //        for (String ip : strings) {
+        String version = new Date().toString();
         String url = "http://"+ ip +":8090/api/instance";
         Gateway gateway = gatewayService.findGatewayByIp(ip);
         if (gateway == null) {
@@ -62,26 +64,26 @@ public class GatewayConfigController {
         JSONArray deviceservices = res.getJSONArray("deviceservice");
         JSONArray exports = res.getJSONArray("export");
         if (jsonObject.getString("command").equals("1")) {
-            commandService.addCommand(new Command(gwname , commands));
+            commandService.addCommand(new Command(gwname , commands,version));
         }
         if (jsonObject.getString("device").equals("1")) {
-            deviceService.addDevice(new Device(gwname, devices));
+            deviceService.addDevice(new Device(gwname, devices,version));
         }
         if (jsonObject.getString("deviceprofile").equals("1")) {
-            deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles));
+            deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles,version));
         }
         if (jsonObject.getString("deviceservice").equals("1")) {
-            deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices));
+            deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices,version));
         }
         if (jsonObject.getString("export").equals("1")) {
-            exportService.addExport(new Export(gwname, exports));
+            exportService.addExport(new Export(gwname, exports,version));
         }
 //        }
         return "备份成功";
     }
 
-    @PostMapping("/recover/{ip}")
-    public String recoverInfo(@PathVariable String ip,@RequestBody JSONObject jsonObject){
+    @PostMapping("/recover/{ip}/{version}")
+    public String recoverInfo(@PathVariable("ip") String ip,@PathVariable("version") String version,@RequestBody JSONObject jsonObject){
 //        Set<String> strings = jsonObject.keySet();
         JSONArray deviceResult= new JSONArray();
 //        for (String ip : strings) {
@@ -89,26 +91,26 @@ public class GatewayConfigController {
             JSONObject result = new JSONObject();
             String gwname = gatewayService.findGatewayByIp(ip).getName();
             if (jsonObject.getString("command").equals("1")) {
-                JSONArray commandArray = commandService.findCommandByName(gwname).getInfo();
+                JSONArray commandArray = commandService.findByNameAndVersion(gwname, version).getInfo();
                 result.put("command", commandArray);
             }
             if (!jsonObject.getJSONObject("device").getString("deviceIp").equals("0")) {
-                JSONArray deviceArr = deviceService.findDeviceByName(gwname).getInfo();
+                JSONArray deviceArr = deviceService.findByNameAndVersion(gwname, version).getInfo();
                 String deviceIp = jsonObject.getJSONObject("device").getString("deviceIp");
                 String deviceUrl = "http://" + deviceIp + ":8081/api/device/recover/"+ ip;
                 JSONObject jsonObject1 = restTemplate.postForObject(deviceUrl, deviceArr, JSONObject.class);
                 deviceResult.add(jsonObject1);
             }
             if (jsonObject.getString("deviceprofile").equals("1")) {
-                JSONArray deviceProfileArr = deviceprofileService.findDeviceprofileByName(gwname).getInfo();
+                JSONArray deviceProfileArr = deviceprofileService.findByNameAndVersion(gwname, version).getInfo();
                 result.put("deviceprofile", deviceProfileArr);
             }
             if (jsonObject.getString("deviceservice").equals("1")) {
-                JSONArray deviceserviceArr = deviceserviceService.findDeviceserviceByName(gwname).getInfo();
+                JSONArray deviceserviceArr = deviceserviceService.findByNameAndVersion(gwname, version).getInfo();
                 result.put("deviceservice", deviceserviceArr);
             }
             if (jsonObject.getString("export").equals("1")) {
-                JSONArray exportArr = exportService.findExportByName(gwname).getInfo();
+                JSONArray exportArr = exportService.findByNameAndVersion(gwname, version).getInfo();
                 result.put("export", exportArr);
             }
             String url = "http://" + ip + ":8090/api/instance";
@@ -118,6 +120,22 @@ public class GatewayConfigController {
             return "此网关 ："+ ip + "未创建";
         }
 //        }
+    }
+//    {
+//        "version1":"",
+//        "version2":"",
+//        "version3":""
+//    }
+    @GetMapping("/version/{ip}")
+    public JSONObject listVersion(@PathVariable String ip){
+        JSONObject jsonObject = new JSONObject();
+        String gwname = gatewayService.findGatewayByIp(ip).getName();
+        List<Command> commandVersion = commandService.findCommandVersion(gwname);
+        for (int i = 0; i < commandVersion.size(); i++) {
+            Command command = commandVersion.get(i);
+            jsonObject.put("version" + i, command.getVersuon());
+        }
+        return jsonObject;
     }
 
 
