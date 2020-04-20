@@ -221,5 +221,30 @@ public class GatewayConfigController {
         return flag;
     }
 
+    @CrossOrigin
+    @GetMapping("/log")
+    public JSONArray getLog(){
+        Gateway localhost = new Gateway("配置中心本地","localhost");
+        List<Gateway> list = gatewayService.findAllGateway();
+        list.add(localhost);
+        System.out.println(list);
+        JSONArray log = new JSONArray();
+        for (Gateway gateway:list) {
+            String gwip = gateway.getIp();
+            String gwname = gateway.getName();
+            try {
+                JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log", JSONArray.class);
+                for (int i = 0; i < result.size(); i++) {
+                    JSONObject jsonObject = result.getJSONObject(i);
+                    jsonObject.put("gatewayIP", gwip);
+                    jsonObject.put("gatewayName", gwname);
+                    log.add(jsonObject);
+                }
+            }catch (Exception e){
+                logService.error(e.getMessage());
+            }
+        }
+        return log;
+    }
 
 }

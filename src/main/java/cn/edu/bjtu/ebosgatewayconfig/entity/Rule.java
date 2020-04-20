@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-@Document
+@Document(collection="ruleBackUp")
 public class Rule {
     private String gwname;
     private JSONArray info;

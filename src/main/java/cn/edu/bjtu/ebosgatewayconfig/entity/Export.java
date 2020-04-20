@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-@Document
+@Document(collection="exportBackUp")
 public class Export {
     private String gwname;
     private JSONArray info;
