@@ -224,27 +224,89 @@ public class GatewayConfigController {
     @CrossOrigin
     @GetMapping("/log")
     public JSONArray getLog(){
-        Gateway localhost = new Gateway("配置中心本地","localhost");
         List<Gateway> list = gatewayService.findAllGateway();
-        list.add(localhost);
-        System.out.println(list);
-        JSONArray log = new JSONArray();
+        JSONArray logs = new JSONArray();
         for (Gateway gateway:list) {
             String gwip = gateway.getIp();
             String gwname = gateway.getName();
             try {
                 JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log", JSONArray.class);
-                for (int i = 0; i < result.size(); i++) {
-                    JSONObject jsonObject = result.getJSONObject(i);
-                    jsonObject.put("gatewayIP", gwip);
-                    jsonObject.put("gatewayName", gwname);
-                    log.add(jsonObject);
-                }
+                addInfo2Log(gwip,gwname,result,logs);
             }catch (Exception e){
                 logService.error(e.getMessage());
             }
         }
-        return log;
+        JSONArray localLog = logService.findAll();
+        addInfo2Log("localhost","配置中心本地",localLog,logs);
+        return logs;
     }
 
+    @CrossOrigin
+    @GetMapping("/log/source/{source}")
+    public JSONArray getLogBySource(@PathVariable String source){
+        List<Gateway> list = gatewayService.findAllGateway();
+        JSONArray logs = new JSONArray();
+        for (Gateway gateway:list) {
+            String gwip = gateway.getIp();
+            String gwname = gateway.getName();
+            try {
+                JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/source/"+source, JSONArray.class);
+                addInfo2Log(gwip,gwname,result,logs);
+            }catch (Exception e){
+                logService.error(e.getMessage());
+            }
+        }
+        JSONArray localLog = logService.findLogBySource(source);
+        addInfo2Log("localhost","配置中心本地",localLog,logs);
+        return logs;
+    }
+
+    @CrossOrigin
+    @GetMapping("/log/category/{category}")
+    public JSONArray getLogByCategory(@PathVariable String category){
+        List<Gateway> list = gatewayService.findAllGateway();
+        JSONArray logs = new JSONArray();
+        for (Gateway gateway:list) {
+            String gwip = gateway.getIp();
+            String gwname = gateway.getName();
+            try {
+                JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/category/"+category, JSONArray.class);
+                addInfo2Log(gwip,gwname,result,logs);
+            }catch (Exception e){
+                logService.error(e.getMessage());
+            }
+        }
+        JSONArray localLog = logService.findLogByCategory(category);
+        addInfo2Log("localhost","配置中心本地",localLog,logs);
+        return logs;
+    }
+
+    @CrossOrigin
+    @GetMapping("/log/source/{source}/category/{category}")
+    public JSONArray getLogBySourceCategory(@PathVariable String source,@PathVariable String category){
+        List<Gateway> list = gatewayService.findAllGateway();
+        JSONArray logs = new JSONArray();
+        for (Gateway gateway:list) {
+            String gwip = gateway.getIp();
+            String gwname = gateway.getName();
+            try {
+                JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/source/"+source+"/category/"+category, JSONArray.class);
+                addInfo2Log(gwip,gwname,result,logs);
+            }catch (Exception e){
+                logService.error(e.getMessage());
+            }
+        }
+        JSONArray localLog = logService.findLogBySourceAndCategory(source,category);
+        addInfo2Log("localhost","配置中心本地",localLog,logs);
+        return logs;
+    }
+
+    private void addInfo2Log(String ip,String name,JSONArray inputLog,JSONArray outputLog){
+        for (int i = 0; i < inputLog.size(); i++) {
+            JSONObject jsonObject = inputLog.getJSONObject(i);
+            jsonObject.put("gatewayIP", ip);
+            jsonObject.put("gatewayName", name);
+            outputLog.add(jsonObject);
+        }
+    }
 }
