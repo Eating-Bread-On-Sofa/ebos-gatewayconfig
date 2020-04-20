@@ -4,6 +4,7 @@ import cn.edu.bjtu.ebosgatewayconfig.entity.*;
 import cn.edu.bjtu.ebosgatewayconfig.service.*;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Api(tags = "网关管理")
 @RequestMapping("/api/gateway")
 @RestController
 public class GatewayConfigController {
@@ -31,6 +33,8 @@ public class GatewayConfigController {
     GatewayService gatewayService;
     @Autowired
     RestTemplate restTemplate;
+    @Autowired
+    LogService logService;
 
     /**
      * {
@@ -46,6 +50,7 @@ public class GatewayConfigController {
      *     }
      * }
      */
+    @CrossOrigin
     @PostMapping("/copy/{ip}")
     public String copyInfo(@PathVariable String ip,@RequestBody JSONObject jsonObject){
 //        Set<String> strings = jsonObject.keySet();
@@ -79,9 +84,11 @@ public class GatewayConfigController {
             exportService.addExport(new Export(gwname, exports,version));
         }
 //        }
+        logService.info("备份成功，version="+version);
         return "备份成功";
     }
 
+    @CrossOrigin
     @PostMapping("/recover/{ip}/{version}")
     public String recoverInfo(@PathVariable("ip") String ip,@PathVariable("version") String version,@RequestBody JSONObject jsonObject){
 //        Set<String> strings = jsonObject.keySet();
@@ -115,30 +122,34 @@ public class GatewayConfigController {
             }
             String url = "http://" + ip + ":8090/api/instance";
             deviceResult.add(restTemplate.postForObject(url, result, JSONObject.class));
+            logService.info("向网关-"+gwname+"恢复 版本为"+version+"的备份 成功，结果为"+deviceResult);
             return deviceResult.toString();
         } else {
             return "此网关 ："+ ip + "未创建";
         }
 //        }
     }
-//    {
-//        "version1":"",
-//        "version2":"",
-//        "version3":""
-//    }
+//    [
+//        {"version":"1"},
+//        {"version":"2"},
+//        {"version":"3"}
+//    ]
+    @CrossOrigin
     @GetMapping("/version/{ip}")
-    public JSONObject listVersion(@PathVariable String ip){
-        JSONObject jsonObject = new JSONObject();
+    public JSONArray listVersion(@PathVariable String ip){
+        JSONArray jsonArray = new JSONArray();
         String gwname = gatewayService.findGatewayByIp(ip).getName();
         List<Command> commandVersion = commandService.findCommandVersion(gwname);
         for (int i = 0; i < commandVersion.size(); i++) {
+            JSONObject jsonObject = new JSONObject();
             Command command = commandVersion.get(i);
-            jsonObject.put("version" + i, command.getVersuon());
+            jsonObject.put("version", command.getVersuon());
+            jsonArray.add(jsonObject);
         }
-        return jsonObject;
+        return jsonArray;
     }
 
-
+    @CrossOrigin
     @GetMapping("/state/{name}")
     public JSONObject listStateOne(@PathVariable String name) {
         JSONObject jsonObject = new JSONObject();
@@ -152,6 +163,7 @@ public class GatewayConfigController {
         }
     }
 
+    @CrossOrigin
     @GetMapping("/state")
     public JSONArray listState() {
         JSONArray jsonArray = new JSONArray();
@@ -171,11 +183,13 @@ public class GatewayConfigController {
         return jsonArray;
     }
 
+    @CrossOrigin
     @GetMapping()
     public JSONArray list() {
         return new JSONArray(new ArrayList<Object>( gatewayService.findAllGateway()));
     }
 
+    @CrossOrigin
     @PostMapping()
     public String addOne(@RequestBody JSONObject jsonObject){
         Gateway gateway = JSONObject.toJavaObject(jsonObject, Gateway.class);
@@ -186,19 +200,26 @@ public class GatewayConfigController {
             return "添加失败！";
         }
     }
+
+    @CrossOrigin
     @PutMapping()
     public void updateOne(@RequestBody JSONObject jsonObject) {
         Gateway gateway = JSONObject.toJavaObject(jsonObject, Gateway.class);
         gatewayService.changeGatewayStatus(gateway);
     }
 
+    @CrossOrigin
     @GetMapping("/{name}")
     public JSONObject listOne(@PathVariable String name) {
         return (JSONObject) JSONObject.toJSON(gatewayService.findGatewayByName(name));
     }
+
+    @CrossOrigin
     @DeleteMapping("/{name}")
     public boolean deleteOne(@PathVariable String name){
         boolean flag = gatewayService.deleteByGatewayName(name);
         return flag;
     }
+
+
 }
