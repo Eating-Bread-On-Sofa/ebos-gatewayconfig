@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-@Document
+@Document(collection="deviceServiceBackUp")
 public class Deviceservice {
     private String gwname;
     private JSONArray info;
