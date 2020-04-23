@@ -18,13 +18,14 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public boolean addCommand(Command command) {
-        Command command1 = commandRepository.findCommandByGwname(command.getGwname());
-        if (command1 == null) {
-            commandRepository.save(command);
-            return true;
-        } else {
-            return false;
-        }
+//        Command command1 = commandRepository.findCommandByGwname(command.getGwname());
+//        if (command1 == null) {
+        commandRepository.save(command);
+        return true;
+//        } else {
+//            commandRepository.save(command);
+//            return false;
+//        }
     }
 
     @Override

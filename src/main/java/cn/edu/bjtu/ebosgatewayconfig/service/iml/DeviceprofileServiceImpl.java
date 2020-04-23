@@ -17,13 +17,13 @@ public class DeviceprofileServiceImpl implements DeviceprofileService {
     DeviceprofileRepository deviceprofileRepository;
     @Override
     public boolean addDeviceprofile(Deviceprofile deviceprofile) {
-        Deviceprofile deviceprofile1 = deviceprofileRepository.findDeviceprofileByGwname(deviceprofile.getGwname());
-        if (deviceprofile1 == null) {
-            deviceprofileRepository.save(deviceprofile);
-            return true;
-        } else {
-            return false;
-        }
+//        Deviceprofile deviceprofile1 = deviceprofileRepository.findDeviceprofileByGwname(deviceprofile.getGwname());
+//        if (deviceprofile1 == null) {
+        deviceprofileRepository.save(deviceprofile);
+        return true;
+//        } else {
+//            return false;
+//        }
     }
 
     @Override

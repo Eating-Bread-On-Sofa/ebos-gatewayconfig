@@ -18,13 +18,13 @@ public class DeviceserviceServiceImpl implements DeviceserviceService {
 
     @Override
     public boolean addDeviceservice(Deviceservice deviceservice) {
-        Deviceservice deviceservice1 = deviceserviceRepository.findDeviceserviceByGwname(deviceservice.getGwname());
-        if (deviceservice1 == null) {
+//        Deviceservice deviceservice1 = deviceserviceRepository.findDeviceserviceByGwname(deviceservice.getGwname());
+//        if (deviceservice1 == null) {
             deviceserviceRepository.save(deviceservice);
             return true;
-        } else {
-            return false;
-        }
+//        } else {
+//            return false;
+//        }
     }
 
     @Override

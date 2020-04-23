@@ -18,13 +18,13 @@ public class ExportServiceImpl implements ExportService {
     ExportRepository exportRepository;
     @Override
     public boolean addExport(Export export) {
-        Export export1 = exportRepository.findExportByGwname(export.getGwname());
-        if (export1 == null) {
+//        Export export1 = exportRepository.findExportByGwname(export.getGwname());
+//        if (export1 == null) {
             exportRepository.save(export);
             return true;
-        } else {
-            return false;
-        }
+//        } else {
+//            return false;
+//        }
     }
 
     @Override
