@@ -89,7 +89,7 @@ public class GatewayConfigController {
     }
 
     @CrossOrigin
-    @PostMapping("/recover/{ip}/{version}")
+    @PostMapping("/recover/ip/{ip}/version/{version}")
     public String recoverInfo(@PathVariable("ip") String ip,@PathVariable("version") String version,@RequestBody JSONObject jsonObject){
 //        Set<String> strings = jsonObject.keySet();
         JSONArray deviceResult= new JSONArray();
