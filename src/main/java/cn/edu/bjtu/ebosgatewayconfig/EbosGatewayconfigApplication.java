@@ -15,7 +15,7 @@ public class EbosGatewayconfigApplication {
     @Bean
     public RestTemplate restTemplate() {
         SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = new SimpleClientHttpRequestFactory();
-        simpleClientHttpRequestFactory.setConnectTimeout(5000);
+        simpleClientHttpRequestFactory.setConnectTimeout(3000);
         simpleClientHttpRequestFactory.setReadTimeout(3000);
         RestTemplate restTemplate = new RestTemplate(simpleClientHttpRequestFactory);
         return restTemplate;

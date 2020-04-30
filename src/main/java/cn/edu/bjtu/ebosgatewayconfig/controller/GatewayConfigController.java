@@ -152,14 +152,20 @@ public class GatewayConfigController {
     @CrossOrigin
     @GetMapping("/state/{name}")
     public JSONObject listStateOne(@PathVariable String name) {
-        JSONObject jsonObject = new JSONObject();
         Gateway gateway = gatewayService.findGatewayByName(name);
-        if (gateway == null) {
-            return (JSONObject) jsonObject.put("Erro", "No Such gateway");
-        } else {
-            String ip = gateway.getIp();
-            String url =  "http://"+ ip +":8090/api/instance/state";
-            return restTemplate.getForObject(url, JSONObject.class);
+        String ip = gateway.getIp();
+        String url =  "http://"+ ip +":8090/api/instance/state";
+        try{
+            JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
+            jsonObject.put("gatewayIP",ip);
+            jsonObject.put("gatewayName",gateway.getName());
+            return jsonObject;
+        }catch (Exception e){
+            logService.error("无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("gatewayIP","无法连接 "+ip);
+            jsonObject.put("gatewayName",gateway.getName()+" 已离线");
+            return jsonObject;
         }
     }
 
@@ -171,12 +177,16 @@ public class GatewayConfigController {
         for (Gateway gateway : allGateway) {
             String ip = gateway.getIp();
             String url =  "http://"+ ip +":8090/api/instance/state";
-            JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
-            if (jsonObject == null) {
-                jsonObject = new JSONObject();
-                jsonObject.put("网关 ip:" + ip, "不存在,请确认");
+            try{
+                JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
+                jsonObject.put("gatewayIP",ip);
+                jsonObject.put("gatewayName",gateway.getName());
                 jsonArray.add(jsonObject);
-            } else {
+            }catch (Exception e){
+                logService.error("无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("gatewayIP","无法连接 "+ip);
+                jsonObject.put("gatewayName",gateway.getName()+" 已离线");
                 jsonArray.add(jsonObject);
             }
         }
