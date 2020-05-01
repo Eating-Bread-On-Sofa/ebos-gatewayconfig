@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -67,6 +68,9 @@ public class GatewayServiceImpl implements GatewayService {
     public List<Gateway> findAllGateway() {
         return gatewayRepository.findAll();
     }
+
+    @Override
+    public List<Gateway> findByCreatedTime(Date start, Date end){return gatewayRepository.findByCreatedBetween(start, end);}
 
     @Override
     public void changeGatewayStatus(Gateway gateway) {

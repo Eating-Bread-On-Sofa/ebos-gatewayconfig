@@ -5,11 +5,15 @@ import cn.edu.bjtu.ebosgatewayconfig.service.*;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -203,6 +207,7 @@ public class GatewayConfigController {
     @PostMapping()
     public String addOne(@RequestBody JSONObject jsonObject){
         Gateway gateway = JSONObject.toJavaObject(jsonObject, Gateway.class);
+        gateway.setCreated(new Date());
         boolean flag = gatewayService.addGateway(gateway);
         if(flag){
             return "添加成功！";
@@ -309,6 +314,32 @@ public class GatewayConfigController {
         JSONArray localLog = logService.findLogBySourceAndCategory(source,category);
         addInfo2Log("localhost","配置中心本地",localLog,logs);
         return logs;
+    }
+
+    @ApiOperation(value = "查看指定创建时间范围的网关",notes = "范围 天数 int days")
+    @ApiImplicitParam(name = "days",value = "查询天数范围,int类型",required = true, paramType = "query")
+    @CrossOrigin
+    @GetMapping("/days")
+    public JSONArray getRecentGateways(@RequestParam int days){
+        JSONArray jsonArray = new JSONArray();
+        Date end = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(end);
+        for (int i = 0; i < days; i++) {
+            calendar.add(Calendar.DATE, -1);
+            Date start = calendar.getTime();
+            List<Gateway> gws = gatewayService.findByCreatedTime(start,end);
+            JSONArray details = new JSONArray();
+            details.addAll(gws);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("startDate",start);
+            jsonObject.put("endDate",end);
+            jsonObject.put("details",details);
+            jsonObject.put("count",details.size());
+            jsonArray.add(jsonObject);
+            end = start;
+        }
+        return jsonArray;
     }
 
     private void addInfo2Log(String ip,String name,JSONArray inputLog,JSONArray outputLog){

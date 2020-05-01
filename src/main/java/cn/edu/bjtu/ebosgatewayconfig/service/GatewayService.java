@@ -1,10 +1,10 @@
 package cn.edu.bjtu.ebosgatewayconfig.service;
 
-import cn.edu.bjtu.ebosgatewayconfig.entity.Command;
 import cn.edu.bjtu.ebosgatewayconfig.entity.Gateway;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Date;
 import java.util.List;
 
 public interface GatewayService {
@@ -16,4 +16,5 @@ public interface GatewayService {
     boolean deleteByGatewayIp(String ip);
     public List<Gateway> findAllGateway();
     public void changeGatewayStatus(Gateway gateway);
+    List<Gateway> findByCreatedTime(Date start, Date end);
 }
