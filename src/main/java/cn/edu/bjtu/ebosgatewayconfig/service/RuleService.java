@@ -1,6 +1,5 @@
 package cn.edu.bjtu.ebosgatewayconfig.service;
 
-import cn.edu.bjtu.ebosgatewayconfig.entity.Deviceprofile;
 import cn.edu.bjtu.ebosgatewayconfig.entity.Rule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
