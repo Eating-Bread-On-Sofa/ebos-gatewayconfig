@@ -87,7 +87,7 @@ public class GatewayConfigController {
             exportService.addExport(new Export(gwname, exports,version));
         }
 //        }
-        logService.info("备份成功，version="+version);
+        logService.info(null,"备份成功，version="+version);
         return "备份成功";
     }
 
@@ -125,7 +125,7 @@ public class GatewayConfigController {
             }
             String url = "http://" + ip + ":8090/api/instance";
             deviceResult.add(restTemplate.postForObject(url, result, JSONObject.class));
-            logService.info("向网关-"+gwname+"恢复 版本为"+version+"的备份 成功，结果为"+deviceResult);
+            logService.info(null,"向网关-"+gwname+"恢复 版本为"+version+"的备份 成功，结果为"+deviceResult);
             return deviceResult.toString();
         } else {
             return "此网关 ："+ ip + "未创建";
@@ -164,7 +164,7 @@ public class GatewayConfigController {
             jsonObject.put("gatewayName",gateway.getName());
             return jsonObject;
         }catch (Exception e){
-            logService.error("无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
+            logService.error(null,"无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("gatewayIP","无法连接 "+ip);
             jsonObject.put("gatewayName",gateway.getName()+" 已离线");
@@ -186,7 +186,7 @@ public class GatewayConfigController {
                 jsonObject.put("gatewayName",gateway.getName());
                 jsonArray.add(jsonObject);
             }catch (Exception e){
-                logService.error("无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
+                logService.error(null,"无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("gatewayIP","无法连接 "+ip);
                 jsonObject.put("gatewayName",gateway.getName()+" 已离线");
@@ -247,7 +247,7 @@ public class GatewayConfigController {
                 JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log", JSONArray.class);
                 addInfo2Log(gwip,gwname,result,logs);
             }catch (Exception e){
-                logService.error(e.getMessage());
+                logService.error(null,e.getMessage());
             }
         }
         JSONArray localLog = logService.findAll();
@@ -267,7 +267,7 @@ public class GatewayConfigController {
                 JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/source/"+source, JSONArray.class);
                 addInfo2Log(gwip,gwname,result,logs);
             }catch (Exception e){
-                logService.error(e.getMessage());
+                logService.error(null,e.getMessage());
             }
         }
         JSONArray localLog = logService.findLogBySource(source);
@@ -287,7 +287,7 @@ public class GatewayConfigController {
                 JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/category/"+category, JSONArray.class);
                 addInfo2Log(gwip,gwname,result,logs);
             }catch (Exception e){
-                logService.error(e.getMessage());
+                logService.error(null,e.getMessage());
             }
         }
         JSONArray localLog = logService.findLogByCategory(category);
@@ -307,7 +307,7 @@ public class GatewayConfigController {
                 JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/source/"+source+"/category/"+category, JSONArray.class);
                 addInfo2Log(gwip,gwname,result,logs);
             }catch (Exception e){
-                logService.error(e.getMessage());
+                logService.error(null,e.getMessage());
             }
         }
         JSONArray localLog = logService.findLogBySourceAndCategory(source,category);
