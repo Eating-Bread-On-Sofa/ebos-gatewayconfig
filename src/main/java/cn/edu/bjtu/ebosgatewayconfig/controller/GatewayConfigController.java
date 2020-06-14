@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Api(tags = "网关管理")
 @RequestMapping("/api/gateway")
@@ -198,14 +195,13 @@ public class GatewayConfigController {
 
     @CrossOrigin
     @GetMapping()
-    public JSONArray list() {
-        return new JSONArray(new ArrayList<Object>( gatewayService.findAllGateway()));
+    public List<Gateway> list() {
+        return gatewayService.findAllGateway();
     }
 
     @CrossOrigin
     @PostMapping()
-    public String addOne(@RequestBody JSONObject jsonObject){
-        Gateway gateway = JSONObject.toJavaObject(jsonObject, Gateway.class);
+    public String addOne(@RequestBody Gateway gateway){
         gateway.setCreated(new Date());
         boolean flag = gatewayService.addGateway(gateway);
         if(flag){
@@ -217,15 +213,14 @@ public class GatewayConfigController {
 
     @CrossOrigin
     @PutMapping()
-    public void updateOne(@RequestBody JSONObject jsonObject) {
-        Gateway gateway = JSONObject.toJavaObject(jsonObject, Gateway.class);
+    public void updateOne(@RequestBody Gateway gateway) {
         gatewayService.changeGatewayStatus(gateway);
     }
 
     @CrossOrigin
     @GetMapping("/{name}")
-    public JSONObject listOne(@PathVariable String name) {
-        return (JSONObject) JSONObject.toJSON(gatewayService.findGatewayByName(name));
+    public Gateway listOne(@PathVariable String name) {
+        return gatewayService.findGatewayByName(name);
     }
 
     @CrossOrigin
@@ -235,92 +230,12 @@ public class GatewayConfigController {
         return flag;
     }
 
-    @CrossOrigin
-    @GetMapping("/log")
-    public JSONArray getLog(){
-        List<Gateway> list = gatewayService.findAllGateway();
-        JSONArray logs = new JSONArray();
-        for (Gateway gateway:list) {
-            String gwip = gateway.getIp();
-            String gwname = gateway.getName();
-            try {
-                JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log", JSONArray.class);
-                addInfo2Log(gwip,gwname,result,logs);
-            }catch (Exception e){
-                logService.error(null,e.getMessage());
-            }
-        }
-        JSONArray localLog = logService.findAll();
-        addInfo2Log("localhost","配置中心本地",localLog,logs);
-        return logs;
-    }
-
-    @CrossOrigin
-    @GetMapping("/log/source/{source}")
-    public JSONArray getLogBySource(@PathVariable String source){
-        List<Gateway> list = gatewayService.findAllGateway();
-        JSONArray logs = new JSONArray();
-        for (Gateway gateway:list) {
-            String gwip = gateway.getIp();
-            String gwname = gateway.getName();
-            try {
-                JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/source/"+source, JSONArray.class);
-                addInfo2Log(gwip,gwname,result,logs);
-            }catch (Exception e){
-                logService.error(null,e.getMessage());
-            }
-        }
-        JSONArray localLog = logService.findLogBySource(source);
-        addInfo2Log("localhost","配置中心本地",localLog,logs);
-        return logs;
-    }
-
-    @CrossOrigin
-    @GetMapping("/log/category/{category}")
-    public JSONArray getLogByCategory(@PathVariable String category){
-        List<Gateway> list = gatewayService.findAllGateway();
-        JSONArray logs = new JSONArray();
-        for (Gateway gateway:list) {
-            String gwip = gateway.getIp();
-            String gwname = gateway.getName();
-            try {
-                JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/category/"+category, JSONArray.class);
-                addInfo2Log(gwip,gwname,result,logs);
-            }catch (Exception e){
-                logService.error(null,e.getMessage());
-            }
-        }
-        JSONArray localLog = logService.findLogByCategory(category);
-        addInfo2Log("localhost","配置中心本地",localLog,logs);
-        return logs;
-    }
-
-    @CrossOrigin
-    @GetMapping("/log/source/{source}/category/{category}")
-    public JSONArray getLogBySourceCategory(@PathVariable String source,@PathVariable String category){
-        List<Gateway> list = gatewayService.findAllGateway();
-        JSONArray logs = new JSONArray();
-        for (Gateway gateway:list) {
-            String gwip = gateway.getIp();
-            String gwname = gateway.getName();
-            try {
-                JSONArray result = restTemplate.getForObject("http://" + gwip + ":8090/api/instance/log/source/"+source+"/category/"+category, JSONArray.class);
-                addInfo2Log(gwip,gwname,result,logs);
-            }catch (Exception e){
-                logService.error(null,e.getMessage());
-            }
-        }
-        JSONArray localLog = logService.findLogBySourceAndCategory(source,category);
-        addInfo2Log("localhost","配置中心本地",localLog,logs);
-        return logs;
-    }
-
     @ApiOperation(value = "查看指定创建时间范围的网关",notes = "范围 天数 int days")
     @ApiImplicitParam(name = "days",value = "查询天数范围,int类型",required = true, paramType = "query")
     @CrossOrigin
     @GetMapping("/days")
-    public JSONArray getRecentGateways(@RequestParam int days){
-        JSONArray jsonArray = new JSONArray();
+    public List<GwGroup> getRecentGateways(@RequestParam int days){
+        List<GwGroup> gwGroups = new LinkedList<>();
         Date end = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(end);
@@ -328,25 +243,14 @@ public class GatewayConfigController {
             calendar.add(Calendar.DATE, -1);
             Date start = calendar.getTime();
             List<Gateway> gws = gatewayService.findByCreatedTime(start,end);
-            JSONArray details = new JSONArray();
-            details.addAll(gws);
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("startDate",start);
-            jsonObject.put("endDate",end);
-            jsonObject.put("details",details);
-            jsonObject.put("count",details.size());
-            jsonArray.add(jsonObject);
+            GwGroup gwGroup = new GwGroup();
+            gwGroup.setCount(gws.size());
+            gwGroup.setEnd(end);
+            gwGroup.setStart(start);
+            gwGroup.setGatewayList(gws);
+            gwGroups.add(gwGroup);
             end = start;
         }
-        return jsonArray;
-    }
-
-    private void addInfo2Log(String ip,String name,JSONArray inputLog,JSONArray outputLog){
-        for (int i = 0; i < inputLog.size(); i++) {
-            JSONObject jsonObject = inputLog.getJSONObject(i);
-            jsonObject.put("gatewayIP", ip);
-            jsonObject.put("gatewayName", name);
-            outputLog.add(jsonObject);
-        }
+        return gwGroups;
     }
 }
