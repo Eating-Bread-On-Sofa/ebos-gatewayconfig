@@ -1,4 +1,6 @@
-package cn.edu.bjtu.ebosgatewayconfig.entity;
+package cn.edu.bjtu.ebosgatewayconfig.model;
+
+import cn.edu.bjtu.ebosgatewayconfig.entity.Gateway;
 
 import java.util.Date;
 import java.util.List;

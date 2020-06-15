@@ -1,6 +1,10 @@
 package cn.edu.bjtu.ebosgatewayconfig.controller;
 
 import cn.edu.bjtu.ebosgatewayconfig.entity.*;
+import cn.edu.bjtu.ebosgatewayconfig.model.GwGroup;
+import cn.edu.bjtu.ebosgatewayconfig.model.GwState;
+import cn.edu.bjtu.ebosgatewayconfig.model.RestoreResult;
+import cn.edu.bjtu.ebosgatewayconfig.model.Version;
 import cn.edu.bjtu.ebosgatewayconfig.service.*;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -36,161 +40,139 @@ public class GatewayConfigController {
     @Autowired
     LogService logService;
 
-    /**
-     * {
-     *     ip1 : {
-     *      *         command : 0 or 1; String
-     *      *         device : { deviceIp : 0 or 设备管理ip};
-     *      *         deviceprofile : 0 or 1;
-     *      *         deviceservice : 0 or 1;
-     *      *         export : 0 or 1;
-     *      *     },
-     *     ip2 : {
-     *
-     *     }
-     * }
-     */
     @CrossOrigin
-    @PostMapping("/copy/{ip}")
-    public String copyInfo(@PathVariable String ip,@RequestBody JSONObject jsonObject){
-//        Set<String> strings = jsonObject.keySet();
-//        for (String ip : strings) {
+    @GetMapping("/copy/{ip}")
+    public String copyInfo(@PathVariable String ip) {
         String version = new Date().toString();
-        String url = "http://"+ ip +":8090/api/instance";
+        String url = "http://" + ip + ":8090/api/instance";
         Gateway gateway = gatewayService.findGatewayByIp(ip);
         if (gateway == null) {
-            return "此网关 ："+ ip + "未创建";
+            return "此网关 ：" + ip + "未创建";
         }
         String gwname = gateway.getName();
         JSONObject res = restTemplate.getForObject(url, JSONObject.class);
         JSONArray commands = res.getJSONArray("command");
-        JSONArray devices =  res.getJSONArray("device");
-        JSONArray deviceprofiles = res.getJSONArray("deviceprofile");
-        JSONArray deviceservices = res.getJSONArray("deviceservice");
-        JSONArray exports = res.getJSONArray("export");
-        if (jsonObject.getString("command").equals("1")) {
-            commandService.addCommand(new Command(gwname , commands,version));
-        }
-        if (jsonObject.getString("device").equals("1")) {
-            deviceService.addDevice(new Device(gwname, devices,version));
-        }
-        if (jsonObject.getString("deviceprofile").equals("1")) {
-            deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles,version));
-        }
-        if (jsonObject.getString("deviceservice").equals("1")) {
-            deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices,version));
-        }
-        if (jsonObject.getString("export").equals("1")) {
-            exportService.addExport(new Export(gwname, exports,version));
-        }
-//        }
-        logService.info(null,"备份成功，version="+version);
-        return "备份成功";
+        JSONArray devices = res.getJSONArray("edgeXDevice");
+        JSONArray deviceprofiles = res.getJSONArray("edgeXProfile");
+        JSONArray deviceservices = res.getJSONArray("edgeXService");
+        JSONArray exports = res.getJSONArray("edgeXExport");
+        commandService.addCommand(new Command(gwname, commands, version));
+        deviceService.addDevice(new Device(gwname, devices, version));
+        deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles, version));
+        deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices, version));
+        exportService.addExport(new Export(gwname, exports, version));
+        logService.info(null, "备份成功，version=" + version);
+        return "备份成功，version=" + version;
     }
 
     @CrossOrigin
     @PostMapping("/recover/ip/{ip}/version/{version}")
-    public String recoverInfo(@PathVariable("ip") String ip,@PathVariable("version") String version,@RequestBody JSONObject jsonObject){
-//        Set<String> strings = jsonObject.keySet();
-        JSONArray deviceResult= new JSONArray();
-//        for (String ip : strings) {
+    public RestoreResult recoverInfo(@PathVariable("ip") String ip, @PathVariable("version") String version) {
+        RestoreResult restoreResult = new RestoreResult();
         if (gatewayService.findGatewayByIp(ip) != null) {
-            JSONObject result = new JSONObject();
             String gwname = gatewayService.findGatewayByIp(ip).getName();
-            if (jsonObject.getString("command").equals("1")) {
-                JSONArray commandArray = commandService.findByNameAndVersion(gwname, version).getInfo();
-                result.put("command", commandArray);
-            }
-            if (!jsonObject.getJSONObject("device").getString("deviceIp").equals("0")) {
-                JSONArray deviceArr = deviceService.findByNameAndVersion(gwname, version).getInfo();
-                String deviceIp = jsonObject.getJSONObject("device").getString("deviceIp");
-                String deviceUrl = "http://" + deviceIp + ":8081/api/device/recover/"+ ip;
-                JSONObject jsonObject1 = restTemplate.postForObject(deviceUrl, deviceArr, JSONObject.class);
-                deviceResult.add(jsonObject1);
-            }
-            if (jsonObject.getString("deviceprofile").equals("1")) {
-                JSONArray deviceProfileArr = deviceprofileService.findByNameAndVersion(gwname, version).getInfo();
-                result.put("deviceprofile", deviceProfileArr);
-            }
-            if (jsonObject.getString("deviceservice").equals("1")) {
-                JSONArray deviceserviceArr = deviceserviceService.findByNameAndVersion(gwname, version).getInfo();
-                result.put("deviceservice", deviceserviceArr);
-            }
-            if (jsonObject.getString("export").equals("1")) {
-                JSONArray exportArr = exportService.findByNameAndVersion(gwname, version).getInfo();
-                result.put("export", exportArr);
-            }
+
+            JSONObject postToGateway = new JSONObject();
+
+            JSONArray commandArray = commandService.findByNameAndVersion(gwname, version).getInfo();
+            postToGateway.put("command", commandArray);
+
+            JSONArray deviceProfileArr = deviceprofileService.findByNameAndVersion(gwname, version).getInfo();
+            postToGateway.put("edgeXProfile", deviceProfileArr);
+
+            JSONArray deviceServiceArr = deviceserviceService.findByNameAndVersion(gwname, version).getInfo();
+            postToGateway.put("edgeXService", deviceServiceArr);
+
+            JSONArray exportArr = exportService.findByNameAndVersion(gwname, version).getInfo();
+            postToGateway.put("edgeXExport", exportArr);
+
             String url = "http://" + ip + ":8090/api/instance";
-            deviceResult.add(restTemplate.postForObject(url, result, JSONObject.class));
-            logService.info(null,"向网关-"+gwname+"恢复 版本为"+version+"的备份 成功，结果为"+deviceResult);
-            return deviceResult.toString();
+            try {
+                JSONObject jsonObject = restTemplate.postForObject(url, postToGateway, JSONObject.class);
+                restoreResult.setCommand(jsonObject.getJSONObject("command"));
+                restoreResult.setEdgeXExport(jsonObject.getJSONObject("edgeXExport"));
+                restoreResult.setEdgeXService(jsonObject.getJSONObject("edgeXService"));
+            } catch (Exception e) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("exception", e.getMessage());
+                restoreResult.setCommand(jsonObject);
+                restoreResult.setEdgeXExport(jsonObject);
+                restoreResult.setEdgeXService(jsonObject);
+            }
+
+            JSONArray deviceArr = deviceService.findByNameAndVersion(gwname, version).getInfo();
+            String deviceUrl = "http://localhost:8081/api/device/recover/" + ip;
+            try {
+                JSONObject deviceRes = restTemplate.postForObject(deviceUrl, deviceArr, JSONObject.class);
+                restoreResult.setEdgeXDevice(deviceRes);
+            } catch (Exception e) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("exception", e.getMessage());
+                restoreResult.setEdgeXDevice(jsonObject);
+            }
+
+            logService.info(null, "向网关-" + gwname + "恢复 版本为" + version + "的备份，结果为" + restoreResult);
+            return restoreResult;
         } else {
-            return "此网关 ："+ ip + "未创建";
+            return new RestoreResult();
         }
-//        }
     }
-//    [
-//        {"version":"1"},
-//        {"version":"2"},
-//        {"version":"3"}
-//    ]
+
     @CrossOrigin
     @GetMapping("/version/{ip}")
-    public JSONArray listVersion(@PathVariable String ip){
-        JSONArray jsonArray = new JSONArray();
+    public List<Version> listVersion(@PathVariable String ip){
+        List<Version> versionList = new LinkedList<>();
         String gwname = gatewayService.findGatewayByIp(ip).getName();
         List<Command> commandVersion = commandService.findCommandVersion(gwname);
         for (int i = 0; i < commandVersion.size(); i++) {
             JSONObject jsonObject = new JSONObject();
             Command command = commandVersion.get(i);
-            jsonObject.put("version", command.getVersuon());
-            jsonArray.add(jsonObject);
+            versionList.add(new Version(command.getVersuon()));
         }
-        return jsonArray;
+        return versionList;
     }
 
     @CrossOrigin
     @GetMapping("/state/{name}")
-    public JSONObject listStateOne(@PathVariable String name) {
+    public GwState listStateOne(@PathVariable String name) {
         Gateway gateway = gatewayService.findGatewayByName(name);
-        String ip = gateway.getIp();
-        String url =  "http://"+ ip +":8090/api/instance/state";
+        String url =  "http://"+ gateway.getIp() +":8090/api/instance/state";
+        GwState gwState = new GwState(gateway.getIp(),gateway.getName());
         try{
             JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
-            jsonObject.put("gatewayIP",ip);
-            jsonObject.put("gatewayName",gateway.getName());
-            return jsonObject;
+            gwState.setState(jsonObject);
         }catch (Exception e){
-            logService.error(null,"无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
+            logService.error(null,"无法连接至网关"+gateway.getName()+":"+gateway.getIp()+" 异常:"+e.toString());
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("gatewayIP","无法连接 "+ip);
-            jsonObject.put("gatewayName",gateway.getName()+" 已离线");
-            return jsonObject;
+            jsonObject.put("无法连接",gateway.getIp());
+            jsonObject.put("已离线",gateway.getName());
+            gwState.setState(jsonObject);
         }
+        return gwState;
     }
 
     @CrossOrigin
     @GetMapping("/state")
-    public JSONArray listState() {
-        JSONArray jsonArray = new JSONArray();
+    public List<GwState> listState() {
+        List<GwState> gwStateList = new LinkedList<>();
         List<Gateway> allGateway = gatewayService.findAllGateway();
         for (Gateway gateway : allGateway) {
             String ip = gateway.getIp();
             String url =  "http://"+ ip +":8090/api/instance/state";
+            GwState gwState = new GwState(ip,gateway.getName());
             try{
                 JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
-                jsonObject.put("gatewayIP",ip);
-                jsonObject.put("gatewayName",gateway.getName());
-                jsonArray.add(jsonObject);
+                gwState.setState(jsonObject);
             }catch (Exception e){
                 logService.error(null,"无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("gatewayIP","无法连接 "+ip);
-                jsonObject.put("gatewayName",gateway.getName()+" 已离线");
-                jsonArray.add(jsonObject);
+                jsonObject.put("无法连接",ip);
+                jsonObject.put("已离线",gateway.getName());
+                gwState.setState(jsonObject);
             }
+            gwStateList.add(gwState);
         }
-        return jsonArray;
+        return gwStateList;
     }
 
     @CrossOrigin
