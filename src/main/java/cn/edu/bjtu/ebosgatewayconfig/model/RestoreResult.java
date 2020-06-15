@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 
 public class RestoreResult {
     private JSONObject edgeXDevice;
-    private JSONObject command;
+    private String command;
     private JSONObject edgeXService;
     private JSONObject edgeXExport;
 
@@ -16,11 +16,11 @@ public class RestoreResult {
         this.edgeXDevice = edgeXDevice;
     }
 
-    public JSONObject getCommand() {
+    public String getCommand() {
         return command;
     }
 
-    public void setCommand(JSONObject command) {
+    public void setCommand(String command) {
         this.command = command;
     }
 

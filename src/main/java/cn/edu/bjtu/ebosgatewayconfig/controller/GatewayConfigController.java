@@ -97,13 +97,13 @@ public class GatewayConfigController {
             String url = "http://" + ip + ":8090/api/instance";
             try {
                 JSONObject jsonObject = restTemplate.postForObject(url, postToGateway, JSONObject.class);
-                restoreResult.setCommand(jsonObject.getJSONObject("command"));
+                restoreResult.setCommand(jsonObject.getString("command"));
                 restoreResult.setEdgeXExport(jsonObject.getJSONObject("edgeXExport"));
                 restoreResult.setEdgeXService(jsonObject.getJSONObject("edgeXService"));
             } catch (Exception e) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("exception", e.getMessage());
-                restoreResult.setCommand(jsonObject);
+                restoreResult.setCommand(e.getMessage());
                 restoreResult.setEdgeXExport(jsonObject);
                 restoreResult.setEdgeXService(jsonObject);
             }
