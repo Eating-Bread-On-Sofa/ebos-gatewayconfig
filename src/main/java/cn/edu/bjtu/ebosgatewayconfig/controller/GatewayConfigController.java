@@ -40,6 +40,7 @@ public class GatewayConfigController {
     @Autowired
     LogService logService;
 
+    @ApiOperation(value = "备份指定网关")
     @CrossOrigin
     @GetMapping("/copy/{ip}")
     public String copyInfo(@PathVariable String ip) {
@@ -71,6 +72,7 @@ public class GatewayConfigController {
 
     }
 
+    @ApiOperation(value = "恢复指定网关")
     @CrossOrigin
     @PostMapping("/recover/ip/{ip}/version/{version}")
     public RestoreResult recoverInfo(@PathVariable("ip") String ip, @PathVariable("version") String version) {
@@ -124,6 +126,7 @@ public class GatewayConfigController {
         }
     }
 
+    @ApiOperation(value = "获取指定网关备份版本列表")
     @CrossOrigin
     @GetMapping("/version/{ip}")
     public List<Version> listVersion(@PathVariable String ip){
@@ -138,6 +141,7 @@ public class GatewayConfigController {
         return versionList;
     }
 
+    @ApiOperation(value = "检测指定网关状态")
     @CrossOrigin
     @GetMapping("/state/{name}")
     public GwState listStateOne(@PathVariable String name) {
@@ -157,6 +161,7 @@ public class GatewayConfigController {
         return gwState;
     }
 
+    @ApiOperation(value = "检测所有网关状态")
     @CrossOrigin
     @GetMapping("/state")
     public List<GwState> listState() {
@@ -181,12 +186,14 @@ public class GatewayConfigController {
         return gwStateList;
     }
 
+    @ApiOperation(value = "查看所有网关")
     @CrossOrigin
     @GetMapping()
     public List<Gateway> list() {
         return gatewayService.findAllGateway();
     }
 
+    @ApiOperation(value = "添加网关")
     @CrossOrigin
     @PostMapping()
     public String addOne(@RequestBody Gateway gateway){
@@ -199,18 +206,21 @@ public class GatewayConfigController {
         }
     }
 
+    @ApiOperation(value = "更改网关")
     @CrossOrigin
     @PutMapping()
     public void updateOne(@RequestBody Gateway gateway) {
         gatewayService.changeGatewayStatus(gateway);
     }
 
+    @ApiOperation(value = "查看指定网关")
     @CrossOrigin
     @GetMapping("/{name}")
     public Gateway listOne(@PathVariable String name) {
         return gatewayService.findGatewayByName(name);
     }
 
+    @ApiOperation(value = "删除指定网关")
     @CrossOrigin
     @DeleteMapping("/{name}")
     public boolean deleteOne(@PathVariable String name){
@@ -240,5 +250,12 @@ public class GatewayConfigController {
             end = start;
         }
         return gwGroups;
+    }
+
+    @ApiOperation(value = "微服务健康检测")
+    @CrossOrigin
+    @GetMapping("/ping")
+    public String ping(){
+        return "pong";
     }
 }
