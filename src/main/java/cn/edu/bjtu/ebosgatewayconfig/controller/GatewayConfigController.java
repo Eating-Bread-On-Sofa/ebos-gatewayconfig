@@ -50,19 +50,25 @@ public class GatewayConfigController {
             return "此网关 ：" + ip + "未创建";
         }
         String gwname = gateway.getName();
-        JSONObject res = restTemplate.getForObject(url, JSONObject.class);
-        JSONArray commands = res.getJSONArray("command");
-        JSONArray devices = res.getJSONArray("edgeXDevice");
-        JSONArray deviceprofiles = res.getJSONArray("edgeXProfile");
-        JSONArray deviceservices = res.getJSONArray("edgeXService");
-        JSONArray exports = res.getJSONArray("edgeXExport");
-        commandService.addCommand(new Command(gwname, commands, version));
-        deviceService.addDevice(new Device(gwname, devices, version));
-        deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles, version));
-        deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices, version));
-        exportService.addExport(new Export(gwname, exports, version));
-        logService.info(null, "备份成功，version=" + version);
-        return "备份成功，version=" + version;
+        try {
+            JSONObject res = restTemplate.getForObject(url, JSONObject.class);
+            JSONArray commands = res.getJSONArray("command");
+            JSONArray devices = res.getJSONArray("edgeXDevice");
+            JSONArray deviceprofiles = res.getJSONArray("edgeXProfile");
+            JSONArray deviceservices = res.getJSONArray("edgeXService");
+            JSONArray exports = res.getJSONArray("edgeXExport");
+            commandService.addCommand(new Command(gwname, commands, version));
+            deviceService.addDevice(new Device(gwname, devices, version));
+            deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles, version));
+            deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices, version));
+            exportService.addExport(new Export(gwname, exports, version));
+            logService.info(null, "备份成功，version=" + version);
+            return "备份成功，version=" + version;
+        }catch (Exception e){
+            logService.error(null, "备份失败："+e.toString());
+            return "备份失败："+e.getMessage();
+        }
+
     }
 
     @CrossOrigin
