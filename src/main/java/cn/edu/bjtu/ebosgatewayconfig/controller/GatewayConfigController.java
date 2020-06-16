@@ -134,7 +134,6 @@ public class GatewayConfigController {
         String gwname = gatewayService.findGatewayByIp(ip).getName();
         List<Command> commandVersion = commandService.findCommandVersion(gwname);
         for (int i = 0; i < commandVersion.size(); i++) {
-            JSONObject jsonObject = new JSONObject();
             Command command = commandVersion.get(i);
             versionList.add(new Version(command.getVersuon()));
         }
