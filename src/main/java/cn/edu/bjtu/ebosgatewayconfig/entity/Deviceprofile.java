@@ -2,9 +2,6 @@ package cn.edu.bjtu.ebosgatewayconfig.entity;
 
 import com.alibaba.fastjson.JSONArray;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 @Document(collection="profileBackUp")
 public class Deviceprofile {

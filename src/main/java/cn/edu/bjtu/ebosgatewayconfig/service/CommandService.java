@@ -3,7 +3,6 @@ package cn.edu.bjtu.ebosgatewayconfig.service;
 import cn.edu.bjtu.ebosgatewayconfig.entity.Command;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package cn.edu.bjtu.ebosgatewayconfig.dao;
 
 import cn.edu.bjtu.ebosgatewayconfig.entity.Device;
-import cn.edu.bjtu.ebosgatewayconfig.entity.Deviceprofile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
