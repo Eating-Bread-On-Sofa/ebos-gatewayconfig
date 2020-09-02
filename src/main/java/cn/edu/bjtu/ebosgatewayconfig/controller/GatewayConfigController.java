@@ -73,10 +73,10 @@ public class GatewayConfigController {
             deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles, version));
             deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices, version));
             exportService.addExport(new Export(gwname, exports, version));
-            logService.info(null, "备份成功，version=" + version);
+            logService.info("create", "备份成功，version=" + version);
             return "备份成功，version=" + version;
         }catch (Exception e){
-            logService.error(null, "备份失败："+e.toString());
+            logService.error("create", "备份失败："+e.toString());
             return "备份失败："+e.getMessage();
         }
 
@@ -129,7 +129,7 @@ public class GatewayConfigController {
                 restoreResult.setEdgeXDevice(jsonObject);
             }
 
-            logService.info(null, "向网关-" + gwname + "恢复 版本为" + version + "的备份，结果为" + restoreResult);
+            logService.info("update", "向网关-" + gwname + "恢复 版本为" + version + "的备份，结果为" + restoreResult);
             return restoreResult;
         } else {
             return new RestoreResult();
@@ -161,7 +161,7 @@ public class GatewayConfigController {
             JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
             gwState.setState(jsonObject);
         }catch (Exception e){
-            logService.error(null,"无法连接至网关"+gateway.getName()+":"+gateway.getIp()+" 异常:"+e.toString());
+            logService.error("retrieve","无法连接至网关"+gateway.getName()+":"+gateway.getIp()+" 异常:"+e.toString());
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("无法连接",gateway.getIp());
             jsonObject.put("已离线",gateway.getName());
@@ -184,7 +184,7 @@ public class GatewayConfigController {
                 JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
                 gwState.setState(jsonObject);
             }catch (Exception e){
-                logService.error(null,"无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
+                logService.error("retrieve","无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("无法连接",ip);
                 jsonObject.put("已离线",gateway.getName());
@@ -209,8 +209,10 @@ public class GatewayConfigController {
         gateway.setCreated(new Date());
         boolean flag = gatewayService.addGateway(gateway);
         if(flag){
+            logService.info("create","创建网关成功，网关信息为："+gateway);
             return "添加成功！";
         }else {
+            logService.warn("create","添加网关失败！");
             return "添加失败！";
         }
     }
@@ -220,6 +222,7 @@ public class GatewayConfigController {
     @PutMapping()
     public void updateOne(@RequestBody Gateway gateway) {
         gatewayService.changeGatewayStatus(gateway);
+        logService.info("update","更改网关信息");
     }
 
     @ApiOperation(value = "查看指定网关")
@@ -234,6 +237,7 @@ public class GatewayConfigController {
     @DeleteMapping("/{name}")
     public boolean deleteOne(@PathVariable String name){
         boolean flag = gatewayService.deleteByGatewayName(name);
+        logService.info("delete","删除名为"+name+"的网关");
         return flag;
     }
 
@@ -270,13 +274,15 @@ public class GatewayConfigController {
                 status.add(rawSubscribe);
                 subscribeService.save(rawSubscribe.getSubTopic());
                 threadPoolExecutor.execute(rawSubscribe);
-                logService.info(null,"设备管理微服务订阅topic：" + rawSubscribe.getSubTopic());
+                logService.info("create","网关管理成功订阅主题"+ rawSubscribe.getSubTopic());
                 return "订阅成功";
             }catch (Exception e) {
                 e.printStackTrace();
+                logService.error("create","网关管理订阅主题"+rawSubscribe.getSubTopic()+"时，参数设定有误。");
                 return "参数错误!";
             }
         }else {
+            logService.error("create","网关管理已订阅主题"+rawSubscribe.getSubTopic()+",再次订阅失败");
             return "订阅主题重复";
         }
     }
@@ -300,7 +306,6 @@ public class GatewayConfigController {
         synchronized (status){
             flag = status.remove(search(subTopic));
         }
-        logService.info(null,"删除设备管理上topic为"+subTopic+"的订阅");
         return flag;
     }
 
@@ -326,6 +331,7 @@ public class GatewayConfigController {
     @CrossOrigin
     @GetMapping("/ping")
     public String ping(){
+        logService.info("retrieve","对网关管理进行了一次健康检测");
         return "pong";
     }
 }
