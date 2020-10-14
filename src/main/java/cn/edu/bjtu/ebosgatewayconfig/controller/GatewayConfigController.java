@@ -46,6 +46,8 @@ public class GatewayConfigController {
     SubscribeService subscribeService;
     @Autowired
     MqFactory mqFactory;
+    @Autowired
+    RegistrationService registrationService;
 
     public static final List<RawSubscribe> status = new LinkedList<>();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
@@ -325,6 +327,32 @@ public class GatewayConfigController {
         MqProducer mqProducer = mqFactory.createProducer();
         mqProducer.publish(topic,message);
         return "发布成功";
+    }
+
+    @ApiOperation(value = "将云端信息注册到边缘端（边缘设备的数据就会导出到云端）")
+    @CrossOrigin
+    @PostMapping("/export/{ip}")
+    public String export(@PathVariable String ip, Registration registration){
+        String info = registrationService.registration(registration,ip);
+        return info;
+    }
+
+    @ApiOperation(value = "查看注册的云端信息")
+    @CrossOrigin
+    @GetMapping("/export/{ip}")
+    public JSONArray getExportInfo(@PathVariable String ip){
+        String url = "http://"+ip+":48071/api/v1/registration";
+        JSONArray exportInfo = restTemplate.getForObject(url,JSONArray.class);
+        return exportInfo;
+    }
+
+    @ApiOperation(value = "注销掉某条注册的云端信息")
+    @CrossOrigin
+    @DeleteMapping("/export/{ip}/{name}")
+    public String delExportInfo(@PathVariable String ip, @PathVariable String name){
+        String url = "http://"+ip+":48071/api/v1/registration" + "/name/" + name;
+        restTemplate.delete(url);
+        return "删除成功";
     }
 
     @ApiOperation(value = "微服务健康检测")
