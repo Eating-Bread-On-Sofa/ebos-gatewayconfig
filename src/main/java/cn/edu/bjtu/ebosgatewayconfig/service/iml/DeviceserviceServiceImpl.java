@@ -60,10 +60,6 @@ public class DeviceserviceServiceImpl implements DeviceserviceService {
 
     @Override
     public Deviceservice findByNameAndVersion(String name, String version) {
-<<<<<<< HEAD
         return deviceserviceRepository.findDeviceserviceByGwnameAndVersion(name, version);
-=======
-        return deviceserviceRepository.findDeviceserviceByGwnameAndVersuon(name, version);
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     }
 }

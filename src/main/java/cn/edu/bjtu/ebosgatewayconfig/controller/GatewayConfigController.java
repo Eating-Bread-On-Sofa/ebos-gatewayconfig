@@ -1,14 +1,7 @@
 package cn.edu.bjtu.ebosgatewayconfig.controller;
 
 import cn.edu.bjtu.ebosgatewayconfig.entity.*;
-<<<<<<< HEAD
 import cn.edu.bjtu.ebosgatewayconfig.model.*;
-=======
-import cn.edu.bjtu.ebosgatewayconfig.model.GwGroup;
-import cn.edu.bjtu.ebosgatewayconfig.model.GwState;
-import cn.edu.bjtu.ebosgatewayconfig.model.RestoreResult;
-import cn.edu.bjtu.ebosgatewayconfig.model.Version;
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
 import cn.edu.bjtu.ebosgatewayconfig.service.*;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -50,7 +43,6 @@ public class GatewayConfigController {
     SubscribeService subscribeService;
     @Autowired
     MqFactory mqFactory;
-<<<<<<< HEAD
 
     public static final List<RawSubscribe> status = new LinkedList<>();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
@@ -97,56 +89,6 @@ public class GatewayConfigController {
 
             JSONObject postToGateway = new JSONObject();
 
-=======
-    @Autowired
-    RegistrationService registrationService;
-
-    public static final List<RawSubscribe> status = new LinkedList<>();
-    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
-
-    @ApiOperation(value = "备份指定网关")
-    @CrossOrigin
-    @GetMapping("/copy/{ip}")
-    public String copyInfo(@PathVariable String ip) {
-        String version = new Date().toString();
-        String url = "http://" + ip + ":8090/api/instance";
-        Gateway gateway = gatewayService.findGatewayByIp(ip);
-        if (gateway == null) {
-            return "此网关 ：" + ip + "未创建";
-        }
-        String gwname = gateway.getName();
-        try {
-            JSONObject res = restTemplate.getForObject(url, JSONObject.class);
-            JSONArray commands = res.getJSONArray("command");
-            JSONArray devices = res.getJSONArray("edgeXDevice");
-            JSONArray deviceprofiles = res.getJSONArray("edgeXProfile");
-            JSONArray deviceservices = res.getJSONArray("edgeXService");
-            JSONArray exports = res.getJSONArray("edgeXExport");
-            commandService.addCommand(new Command(gwname, commands, version));
-            deviceService.addDevice(new Device(gwname, devices, version));
-            deviceprofileService.addDeviceprofile(new Deviceprofile(gwname, deviceprofiles, version));
-            deviceserviceService.addDeviceservice(new Deviceservice(gwname, deviceservices, version));
-            exportService.addExport(new Export(gwname, exports, version));
-            logService.info("create", "备份成功，version=" + version);
-            return "备份成功，version=" + version;
-        }catch (Exception e){
-            logService.error("create", "备份失败："+e.toString());
-            return "备份失败："+e.getMessage();
-        }
-
-    }
-
-    @ApiOperation(value = "恢复指定网关")
-    @CrossOrigin
-    @PostMapping("/recover/ip/{ip}/version/{version}")
-    public RestoreResult recoverInfo(@PathVariable("ip") String ip, @PathVariable("version") String version) {
-        RestoreResult restoreResult = new RestoreResult();
-        if (gatewayService.findGatewayByIp(ip) != null) {
-            String gwname = gatewayService.findGatewayByIp(ip).getName();
-
-            JSONObject postToGateway = new JSONObject();
-
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
             JSONArray commandArray = commandService.findByNameAndVersion(gwname, version).getInfo();
             postToGateway.put("command", commandArray);
 
@@ -190,7 +132,6 @@ public class GatewayConfigController {
             return new RestoreResult();
         }
     }
-<<<<<<< HEAD
 
     @ApiOperation(value = "获取指定网关备份版本列表")
     @CrossOrigin
@@ -310,92 +251,10 @@ public class GatewayConfigController {
             logService.error("retrieve","无法连接至网关"+gateway.getName()+":"+gateway.getIp()+" 异常:"+e.toString());
             success = false;
             System.out.println(e);
-=======
-
-    @ApiOperation(value = "获取指定网关备份版本列表")
-    @CrossOrigin
-    @GetMapping("/version/{ip}")
-    public List<Version> listVersion(@PathVariable String ip){
-        List<Version> versionList = new LinkedList<>();
-        String gwname = gatewayService.findGatewayByIp(ip).getName();
-        List<Command> commandVersion = commandService.findCommandVersion(gwname);
-        for (int i = 0; i < commandVersion.size(); i++) {
-            Command command = commandVersion.get(i);
-            versionList.add(new Version(command.getVersuon()));
-        }
-        return versionList;
-    }
-
-    @ApiOperation(value = "检测指定网关状态")
-    @CrossOrigin
-    @GetMapping("/state/{name}")
-    public GwState listStateOne(@PathVariable String name) {
-        Gateway gateway = gatewayService.findGatewayByName(name);
-        String url =  "http://"+ gateway.getIp() +":8090/api/instance/state";
-        GwState gwState = new GwState(gateway.getIp(),gateway.getName());
-        try{
-            JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
-            gwState.setState(jsonObject);
-        }catch (Exception e){
-            logService.error("retrieve","无法连接至网关"+gateway.getName()+":"+gateway.getIp()+" 异常:"+e.toString());
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("无法连接",gateway.getIp());
-            jsonObject.put("已离线",gateway.getName());
-            gwState.setState(jsonObject);
-        }
-        return gwState;
-    }
-
-    @ApiOperation(value = "检测所有网关状态")
-    @CrossOrigin
-    @GetMapping("/state")
-    public List<GwState> listState() {
-        List<GwState> gwStateList = new LinkedList<>();
-        List<Gateway> allGateway = gatewayService.findAllGateway();
-        for (Gateway gateway : allGateway) {
-            String ip = gateway.getIp();
-            String url =  "http://"+ ip +":8090/api/instance/state";
-            GwState gwState = new GwState(ip,gateway.getName());
-            try{
-                JSONObject jsonObject = restTemplate.getForObject(url, JSONObject.class);
-                gwState.setState(jsonObject);
-            }catch (Exception e){
-                logService.error("retrieve","无法连接至网关"+gateway.getName()+":"+ip+" 异常:"+e.toString());
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("无法连接",ip);
-                jsonObject.put("已离线",gateway.getName());
-                gwState.setState(jsonObject);
-            }
-            gwStateList.add(gwState);
-        }
-        return gwStateList;
-    }
-
-    @ApiOperation(value = "查看所有网关")
-    @CrossOrigin
-    @GetMapping()
-    public List<Gateway> list() {
-        return gatewayService.findAllGateway();
-    }
-
-    @ApiOperation(value = "添加网关")
-    @CrossOrigin
-    @PostMapping()
-    public String addOne(@RequestBody Gateway gateway){
-        gateway.setCreated(new Date());
-        boolean flag = gatewayService.addGateway(gateway);
-        if(flag){
-            logService.info("create","创建网关成功，网关信息为："+gateway);
-            return "添加成功！";
-        }else {
-            logService.warn("create","添加网关失败！");
-            return "添加失败！";
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
         }
         return success;
     }
 
-<<<<<<< HEAD
     @ApiOperation(value = "停止指定网关指定微服务")
     @CrossOrigin
     @DeleteMapping("/service/{name}")
@@ -450,23 +309,6 @@ public class GatewayConfigController {
         return gatewayService.findGatewayByName(name);
     }
 
-=======
-    @ApiOperation(value = "更改网关")
-    @CrossOrigin
-    @PutMapping()
-    public void updateOne(@RequestBody Gateway gateway) {
-        gatewayService.changeGatewayStatus(gateway);
-        logService.info("update","更改网关信息");
-    }
-
-    @ApiOperation(value = "查看指定网关")
-    @CrossOrigin
-    @GetMapping("/{name}")
-    public Gateway listOne(@PathVariable String name) {
-        return gatewayService.findGatewayByName(name);
-    }
-
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     @ApiOperation(value = "删除指定网关")
     @CrossOrigin
     @DeleteMapping("/{name}")
@@ -562,35 +404,6 @@ public class GatewayConfigController {
         return "发布成功";
     }
 
-<<<<<<< HEAD
-=======
-    @ApiOperation(value = "将云端信息注册到边缘端（边缘设备的数据就会导出到云端）")
-    @CrossOrigin
-    @PostMapping("/export/{ip}")
-    public String export(@PathVariable String ip, Registration registration){
-        String info = registrationService.registration(registration,ip);
-        return info;
-    }
-
-    @ApiOperation(value = "查看注册的云端信息")
-    @CrossOrigin
-    @GetMapping("/export/{ip}")
-    public JSONArray getExportInfo(@PathVariable String ip){
-        String url = "http://"+ip+":48071/api/v1/registration";
-        JSONArray exportInfo = restTemplate.getForObject(url,JSONArray.class);
-        return exportInfo;
-    }
-
-    @ApiOperation(value = "注销掉某条注册的云端信息")
-    @CrossOrigin
-    @DeleteMapping("/export/{ip}/{name}")
-    public String delExportInfo(@PathVariable String ip, @PathVariable String name){
-        String url = "http://"+ip+":48071/api/v1/registration" + "/name/" + name;
-        restTemplate.delete(url);
-        return "删除成功";
-    }
-
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     @ApiOperation(value = "微服务健康检测")
     @CrossOrigin
     @GetMapping("/ping")

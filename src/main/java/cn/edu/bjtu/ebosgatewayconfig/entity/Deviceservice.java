@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Deviceservice {
     private String gwname;
     private JSONArray info;
-<<<<<<< HEAD
     private String version;
 
 
@@ -15,15 +14,6 @@ public class Deviceservice {
         this.gwname = gwname;
         this.info = info;
         this.version = version;
-=======
-    private String versuon;
-
-
-    public Deviceservice(String gwname, JSONArray info, String versuon) {
-        this.gwname = gwname;
-        this.info = info;
-        this.versuon = versuon;
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     }
 
     public String getGwname() {
@@ -42,21 +32,12 @@ public class Deviceservice {
         this.info = info;
     }
 
-<<<<<<< HEAD
     public String getVersion() {
         return version;
     }
 
     public void setVersion(String version) {
         this.version = version;
-=======
-    public String getVersuon() {
-        return versuon;
-    }
-
-    public void setVersuon(String versuon) {
-        this.versuon = versuon;
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     }
 
     @Override

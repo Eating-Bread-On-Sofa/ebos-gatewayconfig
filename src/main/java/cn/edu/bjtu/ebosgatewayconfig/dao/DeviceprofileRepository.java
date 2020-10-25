@@ -16,9 +16,5 @@ public interface DeviceprofileRepository extends MongoRepository<Deviceprofile,S
     void deleteDeviceprofileByGwname(String name);
     @Override
     List<Deviceprofile> findAll();
-<<<<<<< HEAD
     Deviceprofile findDeviceprofileByGwnameAndVersion(String name, String version);
-=======
-    Deviceprofile findDeviceprofileByGwnameAndVersuon(String name, String version);
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
 }

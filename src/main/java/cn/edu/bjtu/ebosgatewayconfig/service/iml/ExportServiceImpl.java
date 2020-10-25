@@ -59,10 +59,6 @@ public class ExportServiceImpl implements ExportService {
 
     @Override
     public Export findByNameAndVersion(String name, String version) {
-<<<<<<< HEAD
         return exportRepository.findExportByGwnameAndVersion(name, version);
-=======
-        return exportRepository.findExportByGwnameAndVersuon(name, version);
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     }
 }

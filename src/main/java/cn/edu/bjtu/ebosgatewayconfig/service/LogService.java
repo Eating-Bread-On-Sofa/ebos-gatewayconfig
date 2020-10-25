@@ -20,11 +20,8 @@ public interface LogService {
 
     List<Log> findAll();
 
-<<<<<<< HEAD
     List<Log> findRecent();
 
-=======
->>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     List<Log> find(Date startDate, Date endDate, String source, String category, String operation);
 
     List<Log> findLogByCategory(String category);
