@@ -3,7 +3,10 @@ package cn.edu.bjtu.ebosgatewayconfig.service.iml;
 import cn.edu.bjtu.ebosgatewayconfig.entity.Log;
 import cn.edu.bjtu.ebosgatewayconfig.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
+<<<<<<< HEAD
 import org.springframework.data.domain.Sort;
+=======
+>>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -81,6 +84,7 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
+<<<<<<< HEAD
     public List<Log> findRecent() {
         Query query = new Query();
         query.with(Sort.by(Sort.Order.desc("date"))).limit(100);
@@ -88,6 +92,8 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
+=======
+>>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     public List<Log> find(Date startDate, Date endDate, String source, String category, String operation) {
         if (source.equals("全部")) {
             if (category.equals("all")) {

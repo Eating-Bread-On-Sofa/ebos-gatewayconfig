@@ -28,7 +28,13 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
+<<<<<<< HEAD
     public Gateway findGatewayByName(String name) { return gatewayRepository.findGatewayByName(name); }
+=======
+    public Gateway findGatewayByName(String name) {
+        return gatewayRepository.findGatewayByName(name);
+    }
+>>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
 
     @Override
     public Gateway findGatewayByIp(String ip) {

@@ -61,7 +61,11 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public Command findByNameAndVersion(String name, String version) {
+<<<<<<< HEAD
         return commandRepository.findCommandByGwnameAndVersion(name,version);
+=======
+        return commandRepository.findCommandByGwnameAndVersuon(name,version);
+>>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
     }
 
     @Override

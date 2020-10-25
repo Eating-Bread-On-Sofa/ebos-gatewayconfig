@@ -16,5 +16,9 @@ public interface DeviceRepository extends MongoRepository<Device,String> {
     void deleteDeviceByGwname(String name);
     @Override
     List<Device> findAll();
+<<<<<<< HEAD
     Device findDeviceByGwnameAndVersion(String name,String version);
+=======
+    Device findDeviceByGwnameAndVersuon(String name,String version);
+>>>>>>> 67fcb4651680482e2ad7177cb9ec9104faad5f23
 }
