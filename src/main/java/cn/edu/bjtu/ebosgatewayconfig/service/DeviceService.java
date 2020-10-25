@@ -1,7 +1,6 @@
 package cn.edu.bjtu.ebosgatewayconfig.service;
 
 import cn.edu.bjtu.ebosgatewayconfig.entity.Device;
-import cn.edu.bjtu.ebosgatewayconfig.entity.Deviceprofile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,4 +13,5 @@ public interface DeviceService {
     boolean deleteByDeviceName(String name);
     public List<Device> findAllDevice();
     public void changeDeviceStatus(Device device);
+    public Device findByNameAndVersion(String name, String version);
 }

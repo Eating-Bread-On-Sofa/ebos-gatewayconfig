@@ -17,7 +17,7 @@ public class RuleServiceImpl implements RuleService {
     RuleRepository ruleRepository;
     @Override
     public boolean addRule(Rule rule) {
-        Rule rule1 = ruleRepository.findRuleByName(rule.getGwname());
+        Rule rule1 = ruleRepository.findRuleByGwname(rule.getGwname());
         if (rule1 == null) {
             ruleRepository.save(rule);
             return true;
@@ -28,7 +28,7 @@ public class RuleServiceImpl implements RuleService {
 
     @Override
     public Rule findRuleByName(String name) {
-        return ruleRepository.findRuleByName(name);
+        return ruleRepository.findRuleByGwname(name);
     }
 
     @Override
@@ -38,11 +38,11 @@ public class RuleServiceImpl implements RuleService {
 
     @Override
     public boolean deleteByRuleName(String name) {
-        Rule rule = ruleRepository.findRuleByName(name);
+        Rule rule = ruleRepository.findRuleByGwname(name);
         if (rule == null) {
             return false;
         } else {
-            ruleRepository.deleteByRuleName(name);
+            ruleRepository.deleteRuleByGwname(name);
             return true;
         }
     }

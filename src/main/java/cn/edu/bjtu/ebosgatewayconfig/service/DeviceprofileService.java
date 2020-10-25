@@ -13,4 +13,5 @@ public interface DeviceprofileService {
     boolean deleteByDeviceprofileName(String name);
     public List<Deviceprofile> findAllDeviceprofile();
     public void changeDeviceprofileStatus(Deviceprofile deviceprofile);
+    public Deviceprofile findByNameAndVersion(String name, String version);
 }

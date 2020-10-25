@@ -3,14 +3,16 @@ package cn.edu.bjtu.ebosgatewayconfig.entity;
 import com.alibaba.fastjson.JSONArray;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+@Document(collection="exportBackUp")
 public class Export {
     private String gwname;
     private JSONArray info;
+    private String version;
 
-    public Export(String gwname, JSONArray info) {
+    public Export(String gwname, JSONArray info, String version) {
         this.gwname = gwname;
         this.info = info;
+        this.version = version;
     }
 
     public String getGwname() {
@@ -27,6 +29,14 @@ public class Export {
 
     public void setInfo(JSONArray info) {
         this.info = info;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     @Override

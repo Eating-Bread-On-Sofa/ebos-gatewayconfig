@@ -18,18 +18,18 @@ public class DeviceserviceServiceImpl implements DeviceserviceService {
 
     @Override
     public boolean addDeviceservice(Deviceservice deviceservice) {
-        Deviceservice deviceservice1 = deviceserviceRepository.findDeviceserviceByName(deviceservice.getGwname());
-        if (deviceservice1 == null) {
+//        Deviceservice deviceservice1 = deviceserviceRepository.findDeviceserviceByGwname(deviceservice.getGwname());
+//        if (deviceservice1 == null) {
             deviceserviceRepository.save(deviceservice);
             return true;
-        } else {
-            return false;
-        }
+//        } else {
+//            return false;
+//        }
     }
 
     @Override
     public Deviceservice findDeviceserviceByName(String name) {
-        return deviceserviceRepository.findDeviceserviceByName(name);
+        return deviceserviceRepository.findDeviceserviceByGwname(name);
     }
 
     @Override
@@ -39,11 +39,11 @@ public class DeviceserviceServiceImpl implements DeviceserviceService {
 
     @Override
     public boolean deleteByDeviceserviceName(String name) {
-        Deviceservice deviceservice = deviceserviceRepository.findDeviceserviceByName(name);
+        Deviceservice deviceservice = deviceserviceRepository.findDeviceserviceByGwname(name);
         if (deviceservice == null) {
             return false;
         } else {
-            deviceserviceRepository.deleteByDeviceserviceName(name);
+            deviceserviceRepository.deleteDeviceserviceByGwname(name);
             return true;
         }
     }
@@ -56,5 +56,10 @@ public class DeviceserviceServiceImpl implements DeviceserviceService {
     @Override
     public void changeDeviceserviceStatus(Deviceservice deviceservice) {
         deviceserviceRepository.save(deviceservice);
+    }
+
+    @Override
+    public Deviceservice findByNameAndVersion(String name, String version) {
+        return deviceserviceRepository.findDeviceserviceByGwnameAndVersion(name, version);
     }
 }

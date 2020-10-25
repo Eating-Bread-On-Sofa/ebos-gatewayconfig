@@ -1,6 +1,5 @@
 package cn.edu.bjtu.ebosgatewayconfig.service;
 
-import cn.edu.bjtu.ebosgatewayconfig.entity.Deviceprofile;
 import cn.edu.bjtu.ebosgatewayconfig.entity.Export;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,4 +13,5 @@ public interface ExportService {
     boolean deleteByExportName(String name);
     public List<Export> findAllExport();
     public void changeExportStatus(Export export);
+    public Export findByNameAndVersion(String name, String version);
 }

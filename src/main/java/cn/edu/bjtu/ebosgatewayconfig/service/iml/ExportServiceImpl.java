@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.websocket.server.ServerEndpoint;
 import java.util.List;
 
 @Service
@@ -18,18 +17,18 @@ public class ExportServiceImpl implements ExportService {
     ExportRepository exportRepository;
     @Override
     public boolean addExport(Export export) {
-        Export export1 = exportRepository.findExportByName(export.getGwname());
-        if (export1 == null) {
+//        Export export1 = exportRepository.findExportByGwname(export.getGwname());
+//        if (export1 == null) {
             exportRepository.save(export);
             return true;
-        } else {
-            return false;
-        }
+//        } else {
+//            return false;
+//        }
     }
 
     @Override
     public Export findExportByName(String name) {
-        return exportRepository.findExportByName(name);
+        return exportRepository.findExportByGwname(name);
     }
 
     @Override
@@ -39,11 +38,11 @@ public class ExportServiceImpl implements ExportService {
 
     @Override
     public boolean deleteByExportName(String name) {
-        Export export = exportRepository.findExportByName(name);
+        Export export = exportRepository.findExportByGwname(name);
         if (export == null) {
             return false;
         } else {
-            exportRepository.deleteByExportName(name);
+            exportRepository.deleteExportByGwname(name);
             return true;
         }
     }
@@ -56,5 +55,10 @@ public class ExportServiceImpl implements ExportService {
     @Override
     public void changeExportStatus(Export export) {
         exportRepository.save(export);
+    }
+
+    @Override
+    public Export findByNameAndVersion(String name, String version) {
+        return exportRepository.findExportByGwnameAndVersion(name, version);
     }
 }

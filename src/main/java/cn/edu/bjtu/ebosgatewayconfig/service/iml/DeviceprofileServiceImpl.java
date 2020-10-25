@@ -17,18 +17,18 @@ public class DeviceprofileServiceImpl implements DeviceprofileService {
     DeviceprofileRepository deviceprofileRepository;
     @Override
     public boolean addDeviceprofile(Deviceprofile deviceprofile) {
-        Deviceprofile deviceprofile1 = deviceprofileRepository.findDeviceprofileByName(deviceprofile.getGwname());
-        if (deviceprofile1 == null) {
-            deviceprofileRepository.save(deviceprofile);
-            return true;
-        } else {
-            return false;
-        }
+//        Deviceprofile deviceprofile1 = deviceprofileRepository.findDeviceprofileByGwname(deviceprofile.getGwname());
+//        if (deviceprofile1 == null) {
+        deviceprofileRepository.save(deviceprofile);
+        return true;
+//        } else {
+//            return false;
+//        }
     }
 
     @Override
     public Deviceprofile findDeviceprofileByName(String name) {
-        return deviceprofileRepository.findDeviceprofileByName(name);
+        return deviceprofileRepository.findDeviceprofileByGwname(name);
     }
 
     @Override
@@ -39,11 +39,11 @@ public class DeviceprofileServiceImpl implements DeviceprofileService {
 
     @Override
     public boolean deleteByDeviceprofileName(String name) {
-        Deviceprofile deviceprofile = deviceprofileRepository.findDeviceprofileByName(name);
+        Deviceprofile deviceprofile = deviceprofileRepository.findDeviceprofileByGwname(name);
         if (deviceprofile == null) {
             return false;
         } else {
-            deviceprofileRepository.deleteByDeviceprofileName(name);
+            deviceprofileRepository.deleteDeviceprofileByGwname(name);
             return true;
         }
     }
@@ -57,5 +57,10 @@ public class DeviceprofileServiceImpl implements DeviceprofileService {
     @Override
     public void changeDeviceprofileStatus(Deviceprofile deviceprofile) {
         deviceprofileRepository.save(deviceprofile);
+    }
+
+    @Override
+    public Deviceprofile findByNameAndVersion(String name, String version) {
+        return deviceprofileRepository.findDeviceprofileByGwnameAndVersion(name,version);
     }
 }

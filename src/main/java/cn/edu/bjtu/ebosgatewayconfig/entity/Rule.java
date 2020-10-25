@@ -3,7 +3,7 @@ package cn.edu.bjtu.ebosgatewayconfig.entity;
 import com.alibaba.fastjson.JSONArray;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+@Document(collection="ruleBackUp")
 public class Rule {
     private String gwname;
     private JSONArray info;
@@ -28,6 +28,7 @@ public class Rule {
     public void setInfo(JSONArray info) {
         this.info = info;
     }
+
 
     @Override
     public String toString() {
