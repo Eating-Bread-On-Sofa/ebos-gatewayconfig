@@ -436,7 +436,6 @@ public class GatewayConfigController {
     @CrossOrigin
     @GetMapping("/ping")
     public String ping(){
-        logService.info("retrieve","对网关管理进行了一次健康检测");
         return "pong";
     }
 }
