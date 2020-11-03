@@ -24,21 +24,59 @@ public class LogController {
     LogService logService;
     @Autowired
     RestTemplate restTemplate;
+    @Autowired
+    GatewayService gatewayService;
 
     @ApiOperation(value = "显示最近100条日志", notes = "前端每次刚打开日志界面调用")
     @CrossOrigin
-    @GetMapping("/recent")
-    public List<Log> getRecentLog(String ip){
-        String api = "http://" + ip + ":8090/api/logRecent";
-        return restTemplate.getForObject(api,List.class);
+    @GetMapping("/logRecent")
+    public List<Log> getRecentLog(){
+        return logService.findRecent();
     }
 
     @ApiOperation(value = "按条件筛选日志")
     @CrossOrigin
-    @RequestMapping(method = RequestMethod.GET)
-    public List<Log> getLog(String ip, Date firstDate, Date lastDate, String source, String category, String operation) {
-        String api = "http://" + ip + ":8090/api/log/" + firstDate + "/" + lastDate + "/" + source + "/" + category + "/" + operation;
+    @RequestMapping(value = "/log/{firstDate}/{lastDate}/{source}/{category}/{operation}",method = RequestMethod.GET)
+    public List<Log> getLog(@PathVariable Date firstDate, @PathVariable Date lastDate, @PathVariable String source, @PathVariable String category, @PathVariable String operation) throws ParseException {
+        SimpleDateFormat df =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat ds =  new SimpleDateFormat("yyyy-MM-dd ");
+        Date startDate = df.parse(ds.format(firstDate)+"00:00:00");
+        Date endDate = df.parse(ds.format(lastDate)+"23:59:59");
         logService.info("retrieve","根据起始日期"+firstDate+",终止日期"+lastDate+"，查询微服务"+source+"日志等级为"+category+"且操作为"+operation+"的网关日志");
-        return restTemplate.getForObject(api,List.class);
+        return logService.find(startDate, endDate, source, category, operation);
+    }
+
+    @ApiOperation(value = "显示指定网关最近100条日志")
+    @CrossOrigin
+    @GetMapping("/logRecent/{name}")
+    public List<Log> getRecentLog(@PathVariable String name){
+        Gateway gateway = gatewayService.findGatewayByName(name);
+        String url =  "http://"+ gateway.getIp() +":8090/api/logRecent";
+        List<Log> logs;
+        try{
+            logs = restTemplate.getForObject(url,List.class);
+        }catch (Exception e){
+            logService.error("retrieve","无法连接至网关"+gateway.getName()+":"+gateway.getIp()+" 异常:"+e.toString());
+            System.out.println(e);
+            logs = new LinkedList<>();
+        }
+        return logs;
+    }
+
+    @ApiOperation(value = "对指定网关按条件筛选日志")
+    @CrossOrigin
+    @RequestMapping(value = "/test/{name}/{firstDate}/{lastDate}/{source}/{category}/{operation}",method = RequestMethod.GET)
+    public List<Log> getLog(@PathVariable String name,@PathVariable Date firstDate, @PathVariable Date lastDate, @PathVariable String source, @PathVariable String category, @PathVariable String operation) throws ParseException {
+        Gateway gateway = gatewayService.findGatewayByName(name);
+        String url =  "http://"+ gateway.getIp() +":8090/api/log/" + firstDate + "/" + lastDate + "/" + source + "/" + category + "/" + operation;
+        List<Log> logs;
+        try{
+            logs = restTemplate.getForObject(url,List.class);
+        }catch (Exception e){
+            logService.error("retrieve","无法连接至网关"+gateway.getName()+":"+gateway.getIp()+" 异常:"+e.toString());
+            System.out.println(e);
+            logs = new LinkedList<>();
+        }
+        return logs;
     }
 }
