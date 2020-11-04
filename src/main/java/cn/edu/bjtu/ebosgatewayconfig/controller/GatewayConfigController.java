@@ -342,6 +342,7 @@ public class GatewayConfigController {
             end = start;
         }
         return gwGroups;
+        
     }
 
     @ApiOperation(value = "微服务订阅mq的主题")
